@@ -149,14 +149,15 @@
   .question-text { font-size: 1.2rem; font-weight: 600; margin: 16px 0; line-height: 1.5; }
   .options { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
   .option-btn {
-    background: #f3f4f6; border: 2px solid var(--border); border-radius: 10px;
-    padding: 14px 20px; font-size: 1.05rem; cursor: pointer; transition: all 0.12s; text-align: left;
+    display: block; width: 100%; padding: 14px 20px; font-size: 1.05rem; cursor: pointer; transition: all 0.15s ease; text-align: left;
+    border-radius: 10px; border: 2px solid var(--border); background: var(--card); color: var(--text);
+    -webkit-tap-highlight-color: transparent;
   }
-  .option-btn:hover { background: #e5e7eb; border-color: var(--primary); }
+  .option-btn:hover { background: #f0fdf4; border-color: var(--primary); transform: translateX(4px); }
   .option-btn:active { transform: scale(0.98); }
   .option-btn.selected { background: #dbeafe; border-color: var(--primary); }
-  .option-btn.correct { background: #dcfce7; border-color: var(--success); }
-  .option-btn.wrong { background: #fee2e2; border-color: var(--danger); }
+  .option-btn.correct { background: #dcfce7 !important; border-color: var(--success) !important; color: #166534 !important; }
+  .option-btn.wrong { background: #fee2e2 !important; border-color: var(--danger) !important; color: #991b1b !important; }
   .feedback-text { font-size: 0.95rem; margin-top: 8px; font-weight: 600; }
   .feedback-text.correct { color: var(--success); }
   .feedback-text.wrong { color: var(--danger); }
@@ -168,12 +169,14 @@
   .recall-slot { display: flex; flex-direction: column; align-items: center; gap: 6px; }
   .recall-slot label { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
   .recall-slot input {
-    width: 120px; padding: 10px 12px; font-size: 1.1rem;
-    border: 2px solid var(--border); border-radius: 8px; text-align: center;
-    outline: none; transition: border-color 0.12s;
+    width: 130px; padding: 12px 14px; font-size: 1.15rem;
+    border: 2px solid var(--border); border-radius: 10px; text-align: center;
+    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+    background: var(--card); color: var(--text);
   }
-  .recall-slot input:focus { border-color: var(--primary); }
-  body.large-text .recall-slot input { width: 150px; }
+  .recall-slot input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15); }
+  .recall-slot input.filled { border-color: #86efac; }
+  body.large-text .recall-slot input { width: 160px; }
 
   .step-info {
     font-size: 0.85rem; color: var(--muted); margin-top: 12px;
@@ -193,21 +196,6 @@
     padding: 16px; margin: 16px 0; text-align: left; font-size: 0.95rem; color: #9a3412;
   }
   .suggestion-box strong { display: block; margin-bottom: 6px; }
-
-  .result-detail { margin: 16px 0; text-align: left; }
-  .result-compare { width: 100%; border-collapse: collapse; font-size: 0.95rem; margin: 10px 0; }
-  .result-compare th, .result-compare td { padding: 8px 10px; text-align: center; border-bottom: 1px solid var(--border); }
-  .result-compare th { background: #f0fdf4; font-weight: 600; color: var(--primary); font-size: 0.85rem; }
-  .result-compare td:first-child { text-align: left; font-weight: 600; }
-  .result-compare .match { color: var(--success); font-size: 1.1rem; }
-  .result-compare .miss { color: var(--danger); font-size: 1.1rem; }
-  .result-analysis { background: #f9fafb; border-radius: 8px; padding: 14px 16px; margin: 12px 0; font-size: 0.92rem; line-height: 1.7; }
-  .result-analysis strong { color: var(--text); }
-  .result-analysis .tag-green { color: var(--success); font-weight: 700; }
-  .result-analysis .tag-yellow { color: #ca8a04; font-weight: 700; }
-  .result-analysis .tag-red { color: var(--danger); font-weight: 700; }
-  body.high-contrast .result-compare th { background: #222; }
-  body.high-contrast .result-analysis { background: #1a1a1a; }
 
   /* History */
   .history-section { margin-top: 16px; text-align: left; }
@@ -230,17 +218,34 @@
   }
   #resume-banner .btn { margin: 6px 4px 0; font-size: 0.9rem; padding: 8px 20px; }
 
+  /* Transition */
+  .page-fade-in { animation: fadeIn 0.25s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
   @media (max-width: 480px) {
-    body { font-size: 16px; }
-    .card { padding: 24px 18px; }
-    .object-card { width: 120px; padding: 14px 10px; }
-    .object-card .emoji { font-size: 3rem; }
-    .recall-slot input { width: 100px; }
-    body.large-text .recall-slot input { width: 130px; }
+    body { font-size: 16px; padding: 10px; }
+    .card { padding: 20px 14px; border-radius: 10px; }
+    .object-card { width: 100px; padding: 12px 8px; }
+    .object-card .emoji { font-size: 2.6rem; }
+    .recall-slot input { width: 90px; padding: 10px 8px; font-size: 1rem; }
+    body.large-text .recall-slot input { width: 120px; }
     .container { max-width: 100%; }
-    .progress-seg { font-size: 0.6rem; }
+    .progress-seg { font-size: 0.55rem; }
     .toolbar { gap: 4px; }
-    .toggle-btn { font-size: 0.8rem; padding: 4px 10px; }
+    .toggle-btn { font-size: 0.75rem; padding: 3px 8px; }
+    .option-btn { padding: 12px 14px; font-size: 0.95rem; }
+    .recall-grid { gap: 8px; }
+    .btn { padding: 12px 36px; font-size: 1rem; }
+    .result-score { font-size: 2rem; }
+    .timer { font-size: 1.6rem; }
+    .question-text { font-size: 1.05rem; }
+  }
+  @media (max-width: 380px) {
+    .card { padding: 16px 10px; }
+    .object-card { width: 85px; }
+    .object-card .emoji { font-size: 2.2rem; }
+    .option-btn { padding: 10px 12px; font-size: 0.9rem; }
+    .recall-slot input { width: 80px; padding: 8px 6px; font-size: 0.95rem; }
   }
 </style>
 </head>
@@ -307,6 +312,7 @@
     <span class="phase-badge" id="question-phase">🌿 计算 & 问答</span>
     <div class="timer" id="question-timer">--</div>
     <div class="question-text" id="question-text"></div>
+    <div id="qa-counter" style="font-size:0.8rem;color:var(--muted);margin-bottom:4px;"></div>
     <div class="options" id="question-options"></div>
     <div class="feedback-text hidden" id="question-feedback"></div>
     <button class="btn hidden" id="question-next" onclick="nextQuestion()">继续</button>
@@ -319,9 +325,9 @@
     <h2>请回忆刚才看到的 3 个物品</h2>
     <p>在每个框中输入您记住的物品名称（顺序不限）</p>
     <div class="recall-grid">
-      <div class="recall-slot"><label>物品 ①</label><input type="text" id="recall1-1" placeholder="输入名称" autocomplete="off"></div>
-      <div class="recall-slot"><label>物品 ②</label><input type="text" id="recall1-2" placeholder="输入名称" autocomplete="off"></div>
-      <div class="recall-slot"><label>物品 ③</label><input type="text" id="recall1-3" placeholder="输入名称" autocomplete="off"></div>
+      <div class="recall-slot"><label>物品 ①</label><input type="text" id="recall1-1" placeholder="输入名称" autocomplete="off" inputmode="text" oninput="toggleFilled(this)" enterkeyhint="next" onkeydown="handleRecallKey(event, 'recall1')"></div>
+      <div class="recall-slot"><label>物品 ②</label><input type="text" id="recall1-2" placeholder="输入名称" autocomplete="off" inputmode="text" oninput="toggleFilled(this)" enterkeyhint="next" onkeydown="handleRecallKey(event, 'recall1')"></div>
+      <div class="recall-slot"><label>物品 ③</label><input type="text" id="recall1-3" placeholder="输入名称" autocomplete="off" inputmode="text" oninput="toggleFilled(this)" enterkeyhint="done" onkeydown="handleRecallKey(event, 'recall1')"></div>
     </div>
     <button class="btn" onclick="submitRecall1()">提交答案</button>
     <div class="feedback-text hidden" id="recall1-feedback"></div>
@@ -333,9 +339,9 @@
     <h2>请再次回忆刚才看到的 3 个物品</h2>
     <p>在每个框中输入您记住的物品名称（顺序不限）</p>
     <div class="recall-grid">
-      <div class="recall-slot"><label>物品 ①</label><input type="text" id="recall2-1" placeholder="输入名称" autocomplete="off"></div>
-      <div class="recall-slot"><label>物品 ②</label><input type="text" id="recall2-2" placeholder="输入名称" autocomplete="off"></div>
-      <div class="recall-slot"><label>物品 ③</label><input type="text" id="recall2-3" placeholder="输入名称" autocomplete="off"></div>
+      <div class="recall-slot"><label>物品 ①</label><input type="text" id="recall2-1" placeholder="输入名称" autocomplete="off" inputmode="text" oninput="toggleFilled(this)" enterkeyhint="next" onkeydown="handleRecallKey(event, 'recall2')"></div>
+      <div class="recall-slot"><label>物品 ②</label><input type="text" id="recall2-2" placeholder="输入名称" autocomplete="off" inputmode="text" oninput="toggleFilled(this)" enterkeyhint="next" onkeydown="handleRecallKey(event, 'recall2')"></div>
+      <div class="recall-slot"><label>物品 ③</label><input type="text" id="recall2-3" placeholder="输入名称" autocomplete="off" inputmode="text" oninput="toggleFilled(this)" enterkeyhint="done" onkeydown="handleRecallKey(event, 'recall2')"></div>
     </div>
     <button class="btn" onclick="submitRecall2()">提交答案</button>
     <div class="feedback-text hidden" id="recall2-feedback"></div>
@@ -347,9 +353,32 @@
     <h2>测试完成</h2>
     <div class="result-score" id="result-score">--</div>
     <p id="result-summary"></p>
-    <div id="result-detail" class="result-detail"></div>
+    <div id="score-breakdown" class="hidden" style="margin: 16px 0; text-align: left;">
+      <div style="font-size:0.85rem;font-weight:600;color:var(--muted);margin-bottom:8px;">各项得分</div>
+      <div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:0.85rem;">
+        <span style="width:80px;flex-shrink:0;">30秒回忆</span>
+        <div style="flex:1;height:14px;background:#e5e7eb;border-radius:7px;overflow:hidden;">
+          <div id="bar-r1" style="height:100%;width:0%;background:var(--primary);border-radius:7px;transition:width 0.6s ease;"></div>
+        </div>
+        <span id="label-r1" style="width:30px;text-align:right;font-weight:600;">0</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:0.85rem;">
+        <span style="width:80px;flex-shrink:0;">3:30回忆</span>
+        <div style="flex:1;height:14px;background:#e5e7eb;border-radius:7px;overflow:hidden;">
+          <div id="bar-r2" style="height:100%;width:0%;background:#d97706;border-radius:7px;transition:width 0.6s ease;"></div>
+        </div>
+        <span id="label-r2" style="width:30px;text-align:right;font-weight:600;">0</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:0.85rem;">
+        <span style="width:80px;flex-shrink:0;">问答正确率</span>
+        <div style="flex:1;height:14px;background:#e5e7eb;border-radius:7px;overflow:hidden;">
+          <div id="bar-qa" style="height:100%;width:0%;background:#6366f1;border-radius:7px;transition:width 0.6s ease;"></div>
+        </div>
+        <span id="label-qa" style="width:50px;text-align:right;font-weight:600;">0%</span>
+      </div>
+    </div>
     <div class="suggestion-box hidden" id="suggestion-box">
-      <strong>🌱 分析与建议</strong>
+      <strong>🌱 温馨提示</strong>
       <span id="suggestion-text"></span>
     </div>
     <button class="btn" onclick="resetTest()" style="margin-top:12px;">重新测试</button>
@@ -376,7 +405,7 @@ let currentObjects = []; // selected for this test
 
 // Questions — season replaced with month/week questions
 const QUESTIONS = [
-// 简单计算（12题）
+  // 简单计算（12题）
   { q: '25 + 17 = ?', opts: ['38', '42', '43', '32'], ans: 1 },
   { q: '64 - 29 = ?', opts: ['45', '33', '35', '37'], ans: 2 },
   { q: '7 × 8 = ?', opts: ['48', '56', '64', '54'], ans: 1 },
@@ -389,7 +418,7 @@ const QUESTIONS = [
   { q: '55 - 18 = ?', opts: ['47', '37', '38', '27'], ans: 1 },
   { q: '8 × 6 = ?', opts: ['46', '48', '54', '42'], ans: 1 },
   { q: '5 × 12 = ?', opts: ['50', '60', '72', '55'], ans: 1 },
-  // 生活常识
+  // 生活常识（10题）
   { q: '我们通常用什么来切菜？', opts: ['铅笔', '菜刀', '梳子', '毛巾'], ans: 1 },
   { q: '下雨天出门应该带什么？', opts: ['扇子', '帽子', '雨伞', '墨镜'], ans: 2 },
   { q: '生病了应该去看什么？', opts: ['老师', '警察', '医生', '司机'], ans: 2 },
@@ -400,7 +429,7 @@ const QUESTIONS = [
   { q: '衣服晒干是因为什么？', opts: ['水分蒸发', '风吹', '太阳晒', '以上都是'], ans: 0 },
   { q: '烧开水时水达到多少度会沸腾？', opts: ['50度', '80度', '100度', '120度'], ans: 2 },
   { q: '一天中早餐应该在什么时间吃？', opts: ['中午', '早上', '晚上', '深夜'], ans: 1 },
-  // 自然与科学
+  // 自然与科学（10题）
   { q: '什么动物会"汪汪"叫？', opts: ['猫', '狗', '鸡', '牛'], ans: 1 },
   { q: '黄色加蓝色混合成什么颜色？', opts: ['红色', '绿色', '紫色', '橙色'], ans: 1 },
   { q: '什么季节叶子会变黄掉落？', opts: ['春天', '夏天', '秋天', '冬天'], ans: 2 },
@@ -411,7 +440,7 @@ const QUESTIONS = [
   { q: '以下哪种是爬行动物？', opts: ['乌龟', '青蛙', '金鱼', '麻雀'], ans: 0 },
   { q: '海水是什么味道？', opts: ['甜味', '酸味', '咸味', '苦味'], ans: 2 },
   { q: '太阳是什么？', opts: ['行星', '卫星', '恒星', '彗星'], ans: 2 },
-  // 历史与文化
+  // 历史与文化（7题）
   { q: '中国的首都是哪个城市？', opts: ['上海', '广州', '北京', '深圳'], ans: 2 },
   { q: '中国的国旗是什么颜色？', opts: ['蓝色', '红色', '绿色', '黄色'], ans: 1 },
   { q: '以下哪个是中国的传统节日？', opts: ['圣诞节', '中秋节', '复活节', '万圣节'], ans: 1 },
@@ -419,14 +448,45 @@ const QUESTIONS = [
   { q: '中国的母亲河是哪条河？', opts: ['长江', '黄河', '珠江', '淮河'], ans: 1 },
   { q: '熊猫主要生活在中国的哪个地区？', opts: ['新疆', '四川', '海南', '黑龙江'], ans: 1 },
   { q: '以下哪种食物含有最多维生素C？', opts: ['米饭', '面条', '橙子', '鸡蛋'], ans: 2 },
-  // 月份与时间
+  // 月份与时间（6题）
   { q: '一年有多少个月份？', opts: ['10', '11', '12', '13'], ans: 2 },
   { q: '一个月大约有多少天？', opts: ['20天', '25天', '30天', '35天'], ans: 2 },
   { q: '一周有几天？', opts: ['5天', '6天', '7天', '8天'], ans: 2 },
   { q: '一年中哪个月份只有28或29天？', opts: ['1月', '2月', '6月', '12月'], ans: 1 },
   { q: '一天有多少个小时？', opts: ['12', '24', '36', '48'], ans: 1 },
   { q: '一周中哪一天通常被认为是周末的开始？', opts: ['星期四', '星期五', '星期六', '星期日'], ans: 2 },
-];
+  // 会话社交（新增30题）
+  { q: '如果有人对你说"谢谢"，你应该回答什么？', opts: ['不用谢', '好的', '再见', '没关系'], ans: 0 },
+  { q: '想向别人借东西时，应该先说什么？', opts: ['给我', '请问', '你好', '喂'], ans: 1 },
+  { q: '见到认识的人时，通常说什么？', opts: ['再见', '你好', '好吃', '晚安'], ans: 1 },
+  { q: '去别人家做客，进门时应该做什么？', opts: ['脱鞋', '直接坐下', '大声喊叫', '翻东西'], ans: 0 },
+  { q: '别人说话时，我们应该怎么做？', opts: ['打断他', '认真听', '玩手机', '走开'], ans: 1 },
+  { q: '在公交车上看到老人站着，应该怎么做？', opts: ['让座', '假装没看见', '站起来离开', '关窗'], ans: 0 },
+  { q: '以下哪个是礼貌用语？', opts: ['闭嘴', '滚开', '请', '快点'], ans: 2 },
+  { q: '收到礼物时应该说什么？', opts: ['多少钱', '谢谢', '不要', '太差了'], ans: 1 },
+  { q: '想和人打招呼时，可以说什么？', opts: ['走开', '你好呀', '闭嘴', '不知道'], ans: 1 },
+  { q: '吃饭时应该用什么餐具？', opts: ['筷子或叉子', '梳子', '铅笔', '牙刷'], ans: 0 },
+  { q: '在图书馆应该怎么做？', opts: ['大声说话', '保持安静', '跑来跑去', '吃东西'], ans: 1 },
+  { q: '过马路时应该走哪里？', opts: ['随便走', '斑马线', '翻栏杆', '快跑'], ans: 1 },
+  { q: '和好朋友分开时说什么？', opts: ['你好', '再见', '早安', '晚安'], ans: 1 },
+  { q: '看到别人摔倒了应该怎么做？', opts: ['笑', '问要不要帮忙', '拍照', '走开'], ans: 1 },
+  { q: '排队的时候应该怎么做？', opts: ['插队', '按顺序排队', '推别人', '大喊'], ans: 1 },
+  { q: '早上起床后对家人说什么？', opts: ['早安', '晚安', '再见', '谢谢'], ans: 0 },
+  { q: '吃饭时想夹远处的菜应该怎么做？', opts: ['站起来够', '请别人帮忙', '用筷子去拨', '放弃不吃'], ans: 1 },
+  { q: '递东西给别人时应该怎么做？', opts: ['扔过去', '单手递', '双手递', '不管'], ans: 2 },
+  { q: '别人问你"你叫什么名字？"，回答什么？', opts: ['我叫小明', '你是谁', '不知道', '走开'], ans: 0 },
+  { q: '想加入别人的聊天时，怎么表示？', opts: ['直接插话', '等合适时机说', '大声喊', '打断别人'], ans: 1 },
+  { q: '踩到别人的脚，应该说什么？', opts: ['对不起', '活该', '没关系', '好痛'], ans: 0 },
+  { q: '早上起床后首先要做什么？', opts: ['吃午饭', '刷牙洗脸', '看电视', '玩手机'], ans: 1 },
+  { q: '以下哪种食物对牙齿最不好？', opts: ['牛奶', '糖', '米饭', '苹果'], ans: 1 },
+  { q: '下雨天过马路要注意什么？', opts: ['跑快点', '打雨伞看车', '闭着眼睛', '无视信号灯'], ans: 1 },
+  { q: '和朋友一起玩时应该怎么做？', opts: ['争抢', '分享', '打人', '哭闹'], ans: 1 },
+  { q: '想知道现在几点了应该看什么？', opts: ['温度计', '时钟', '指南针', '体重秤'], ans: 1 },
+  { q: '想要什么东西时，应该怎么表达？', opts: ['撒娇', '好好说出理由', '哭闹', '直接拿走'], ans: 1 },
+  { q: '别人帮助了你，你应该说什么？', opts: ['再见', '谢谢', '晚安', '你好'], ans: 1 },
+  { q: '晚上睡觉前应该对家人说什么？', opts: ['早安', '午安', '晚安', '再见'], ans: 2 },
+  { q: '在超市选完东西后去哪里付钱？', opts: ['门口', '收银台', '货架', '厕所'], ans: 1 },
+];;
 
 // ===================================================================
 // STATE
@@ -619,8 +679,12 @@ function showScreen(id) {
   ['screen-welcome','screen-objects','screen-question',
    'screen-recall1','screen-recall2','screen-results'].forEach(s => {
     document.getElementById(s).classList.add('hidden');
+    document.getElementById(s).classList.remove('page-fade-in');
   });
-  document.getElementById(id).classList.remove('hidden');
+  const el = document.getElementById(id);
+  el.classList.remove('hidden');
+  void el.offsetWidth;
+  el.classList.add('page-fade-in');
 }
 
 function formatTime(seconds) {
@@ -738,12 +802,15 @@ function updateDistractionTimer() {
 let currentQuestionData = null;
 
 function presentQuestion() {
+  questionAnswered = false;
+  
   const idx = Math.floor(Math.random() * QUESTIONS.length);
   const q = QUESTIONS[idx];
   currentQuestionData = q;
   state.totalQuestions++;
 
   document.getElementById('question-text').textContent = `第 ${state.totalQuestions} 题: ${q.q}`;
+  document.getElementById('qa-counter').textContent = `✅ ${state.correctAnswers} / ${state.questionsAsked} 正确`;
   document.getElementById('question-timer').classList.remove('warning');
 
   const optionsDiv = document.getElementById('question-options');
@@ -756,21 +823,32 @@ function presentQuestion() {
     btn.className = 'option-btn';
     btn.textContent = opt;
     btn.onclick = () => answerQuestion(i);
+    btn.style.pointerEvents = 'auto';
     optionsDiv.appendChild(btn);
   });
 
   backupState();
 }
 
+let questionAnswered = false;
+
 function answerQuestion(selected) {
+  if (questionAnswered) return;
+  questionAnswered = true;
+  
   const q = currentQuestionData;
   const buttons = document.querySelectorAll('#question-options .option-btn');
-  buttons.forEach((btn, i) => {
-    btn.onclick = null;
-    btn.style.cursor = 'default';
-    if (i === q.ans) btn.classList.add('correct');
-    if (i === selected && selected !== q.ans) btn.classList.add('wrong');
-  });
+  if (buttons[selected]) buttons[selected].classList.add('selected');
+  
+  setTimeout(() => {
+    buttons.forEach((btn, i) => {
+      btn.onclick = null;
+      btn.style.pointerEvents = 'none';
+      btn.style.cursor = 'default';
+      if (i === q.ans) btn.classList.add('correct');
+      if (i === selected && selected !== q.ans) btn.classList.add('wrong');
+    });
+  }, 150);
 
   const fb = document.getElementById('question-feedback');
   fb.classList.remove('hidden');
@@ -789,6 +867,7 @@ function answerQuestion(selected) {
 
 function nextQuestion() {
   if (checkAndTriggerRecall()) return;
+  document.getElementById('question-next').classList.add('hidden');
   presentQuestion();
 }
 
@@ -802,14 +881,18 @@ function goToRecall1() {
   playBeep();
   speak('请回忆刚才看到的三个物品，在输入框中填写名称。');
   document.getElementById('recall1-feedback').classList.add('hidden');
-  document.getElementById('recall1-1').value = '';
-  document.getElementById('recall1-2').value = '';
-  document.getElementById('recall1-3').value = '';
-  document.getElementById('recall1-1').focus();
+  ['recall1-1','recall1-2','recall1-3'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = '';
+    el.classList.remove('filled');
+  });
+  setTimeout(() => document.getElementById('recall1-1').focus(), 300);
   backupState();
 }
 
 function submitRecall1() {
+  if (state.recall1Done) return;
+  
   const a1 = document.getElementById('recall1-1').value;
   const a2 = document.getElementById('recall1-2').value;
   const a3 = document.getElementById('recall1-3').value;
@@ -832,6 +915,8 @@ function submitRecall1() {
   state.recall1Results = results;
   while (state.recall1Results.length < 3) state.recall1Results.push(false);
   state.recall1Done = true;
+  const submitBtn1 = document.querySelector('#screen-recall1 .btn');
+  if (submitBtn1) submitBtn1.disabled = true;
 
   const correctCount = results.filter(r => r).length;
   const fb = document.getElementById('recall1-feedback');
@@ -870,13 +955,17 @@ function goToRecall2() {
   playBeep();
   speak('请再次回忆刚才看到的三个物品。');
   document.getElementById('recall2-feedback').classList.add('hidden');
-  document.getElementById('recall2-1').value = '';
-  document.getElementById('recall2-2').value = '';
-  document.getElementById('recall2-3').value = '';
-  document.getElementById('recall2-1').focus();
+  ['recall2-1','recall2-2','recall2-3'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = '';
+    el.classList.remove('filled');
+  });
+  setTimeout(() => document.getElementById('recall2-1').focus(), 300);
 }
 
 function submitRecall2() {
+  if (state.recall2Done) return;
+  
   const a1 = document.getElementById('recall2-1').value;
   const a2 = document.getElementById('recall2-2').value;
   const a3 = document.getElementById('recall2-3').value;
@@ -899,6 +988,8 @@ function submitRecall2() {
   state.recall2Results = results;
   while (state.recall2Results.length < 3) state.recall2Results.push(false);
   state.recall2Done = true;
+  const submitBtn2 = document.querySelector('#screen-recall2 .btn');
+  if (submitBtn2) submitBtn2.disabled = true;
 
   const correctCount = results.filter(r => r).length;
   const fb = document.getElementById('recall2-feedback');
@@ -935,64 +1026,6 @@ function showResults() {
   const totalScore = Math.round((r1 + r2 + cb) * 10) / 10;
   const pct = Math.round((totalScore / 7) * 100);
 
-  // --- Item-by-item recall detail ---
-  const objs = currentObjects;
-  const r1data = state.recall1Results;
-  const r2data = state.recall2Results;
-
-  let detailHtml = '<table class="result-compare">';
-  detailHtml += '<tr><th>物品</th><th>30秒回忆</th><th>3:30回忆</th><th>趋势</th></tr>';
-  let trendDown = 0, trendUp = 0, trendSame = 0;
-  for (let i = 0; i < 3; i++) {
-    const ok1 = r1data[i] || false;
-    const ok2 = r2data[i] || false;
-    const icon1 = ok1 ? '<span class="match">✓</span>' : '<span class="miss">✗</span>';
-    const icon2 = ok2 ? '<span class="match">✓</span>' : '<span class="miss">✗</span>';
-    let trend;
-    if (ok1 && !ok2) { trend = '↓ 遗忘'; trendDown++; }
-    else if (!ok1 && ok2) { trend = '↑ 想起'; trendUp++; }
-    else if (ok1 && ok2) { trend = '— 保持'; trendSame++; }
-    else { trend = '— 均未'; }
-    detailHtml += `<tr><td>${objs[i].emoji} ${objs[i].name}</td><td>${icon1}</td><td>${icon2}</td><td>${trend}</td></tr>`;
-  }
-  detailHtml += '</table>';
-
-  // --- Performance trend summary ---
-  const accRate = state.questionsAsked > 0
-    ? Math.round((state.correctAnswers / state.questionsAsked) * 100) : 0;
-
-  let trendSummary = '';
-  if (r1 === 3 && r2 === 3) {
-    trendSummary = '🎯 <strong>三次全部记住</strong>，两次回忆均无遗漏，信息保持能力很好。';
-  } else if (r1 >= 2 && r2 >= 2 && r1 === r2) {
-    trendSummary = '📊 <strong>表现稳定</strong>，两次回忆正确数量一致，记忆保持能力尚可。';
-  } else if (r1 > r2) {
-    trendSummary = '📉 <strong>随时间有所遗忘</strong>，短时记忆正常但信息保持能力偏弱。';
-  } else if (r1 < r2) {
-    trendSummary = '📈 <strong>第二次回忆更好</strong>，可能是首次回忆时注意力不够集中。';
-  } else {
-    trendSummary = '📋 <strong>两次回忆表现接近</strong>，建议持续观察。';
-  }
-
-  let accSummary = '';
-  if (accRate >= 80) {
-    accSummary = `<span class="tag-green">注意力良好</span>（正确率 ${accRate}%）—— 问答环节表现稳定。`;
-  } else if (accRate >= 50) {
-    accSummary = `<span class="tag-yellow">注意力一般</span>（正确率 ${accRate}%）—— 问答环节有部分失误。`;
-  } else {
-    accSummary = `<span class="tag-red">注意力偏散</span>（正确率 ${accRate}%）—— 问答环节失误较多，可能受疲劳或情绪影响。`;
-  }
-
-  detailHtml += `<div class="result-analysis">
-    <strong>📌 记忆趋势分析</strong><br>
-    ${trendSummary}<br><br>
-    <strong>🧮 干扰问答表现</strong><br>
-    答对 ${state.correctAnswers}/${state.questionsAsked} 题，${accSummary}
-  </div>`;
-
-  document.getElementById('result-detail').innerHTML = detailHtml;
-
-  // --- Score display ---
   const scoreEl = document.getElementById('result-score');
   const summaryEl = document.getElementById('result-summary');
   const badgeEl = document.getElementById('result-badge');
@@ -1001,36 +1034,35 @@ function showResults() {
   const objectsNamed = currentObjects.map(o => o.name).join('、');
 
   scoreEl.textContent = `${totalScore} / 7`;
+  // Animated score bars
+  document.getElementById('score-breakdown').classList.remove('hidden');
+  setTimeout(() => {
+    document.getElementById('bar-r1').style.width = (r1 / 3 * 100) + '%';
+    document.getElementById('label-r1').textContent = r1 + '/3';
+    document.getElementById('bar-r2').style.width = (r2 / 3 * 100) + '%';
+    document.getElementById('label-r2').textContent = r2 + '/3';
+    document.getElementById('bar-qa').style.width = Math.round(rate * 100) + '%';
+    document.getElementById('label-qa').textContent = Math.round(rate * 100) + '%';
+  }, 100);
+  const objList = currentObjects.map((o, i) => `物品${i+1}: ${o.emoji} ${o.name}`).join('\n');
 
   if (pct >= 80) {
     scoreEl.className = 'result-score pass';
     badgeEl.textContent = '🌳 结果良好';
-    summaryEl.innerHTML = `短期记忆表现正常。<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ${objectsNamed}</span>`;
+    summaryEl.innerHTML = `短期记忆表现正常。<br>30秒回忆: ${r1}/3 正确 | 3:30回忆: ${r2}/3 正确<br>答题正确率: ${state.correctAnswers}/${state.questionsAsked}<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ${objectsNamed}</span>`;
     suggestEl.classList.add('hidden');
   } else if (pct >= 50) {
     scoreEl.className = 'result-score pass';
     badgeEl.textContent = '🌱 结果一般';
-    summaryEl.innerHTML = `短期记忆有部分减损迹象。<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ${objectsNamed}</span>`;
+    summaryEl.innerHTML = `短期记忆有部分减损迹象。<br>30秒回忆: ${r1}/3 正确 | 3:30回忆: ${r2}/3 正确<br>答题正确率: ${state.correctAnswers}/${state.questionsAsked}<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ${objectsNamed}</span>`;
     suggestEl.classList.remove('hidden');
-    let advice = '🧩 建议多进行脑力锻炼：<br>• 每天读报或看书，复述主要内容<br>• 玩数独、拼图、记忆卡片等益智游戏<br>• 保持社交活动，多与人交流<br>• 注意饮食均衡，适当补充B族维生素';
-    if (r1 > r2) {
-      advice += '<br><br>📌 您的主要问题是<b>信息保持</b>，建议练习：记住购物清单、电话号码，过几分钟再回忆。';
-    } else if (r1 < 2) {
-      advice += '<br><br>📌 建议咨询社区医生做一次<b>专业认知评估</b>（如MoCA测试），以排除其他影响因素。';
-    }
-    suggestText.innerHTML = advice;
+    suggestText.textContent = '建议多进行脑力锻炼，如阅读、数独、学习新技能。如有持续记忆下降，建议咨询医生做进一步评估。';
   } else {
     scoreEl.className = 'result-score fail';
     badgeEl.textContent = '🍂 建议关注';
-    summaryEl.innerHTML = `短期记忆有明显减损迹象。<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ${objectsNamed}</span>`;
+    summaryEl.innerHTML = `短期记忆有明显减损迹象。<br>30秒回忆: ${r1}/3 正确 | 3:30回忆: ${r2}/3 正确<br>答题正确率: ${state.correctAnswers}/${state.questionsAsked}<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ${objectsNamed}</span>`;
     suggestEl.classList.remove('hidden');
-    let advice = '🏥 本测试仅为初步筛查，不能代替专业诊断。<br><br>';
-    advice += '<b>强烈建议您：</b><br>';
-    advice += '• 前往医院<b>神经内科</b>或<b>老年科</b>就诊<br>';
-    advice += '• 进行专业的<b>蒙特利尔认知评估（MoCA）</b><br>';
-    advice += '• 告知医生本次测试结果：30秒回忆 ' + r1 + '/3，3:30回忆 ' + r2 + '/3<br><br>';
-    advice += '🕊 早期发现、早期干预对延缓认知功能下降非常重要。请不必过于焦虑，及时就医是最正确的选择。';
-    suggestText.innerHTML = advice;
+    suggestText.textContent = '本测试仅为初步筛查，不能代替专业诊断。强烈建议您咨询神经内科或老年科医生。早期发现、早期干预非常重要。';
   }
 
   // Save history
@@ -1100,6 +1132,36 @@ function resumeTest() {
     // Back to distraction
     startDistractionPhase(true);
   } catch(e) { clearBackup(); }
+}
+
+// ===================================================================
+// RECALL KEYBOARD HANDLER (Enter to move to next field or submit)
+// ===================================================================
+function handleRecallKey(event, phase) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    const inputs = phase === 'recall1'
+      ? ['recall1-1', 'recall1-2', 'recall1-3']
+      : ['recall2-1', 'recall2-2', 'recall2-3'];
+    const currentIdx = inputs.indexOf(event.target.id);
+    if (currentIdx >= 0 && currentIdx < inputs.length - 1) {
+      document.getElementById(inputs[currentIdx + 1]).focus();
+    } else {
+      if (phase === 'recall1') submitRecall1();
+      else submitRecall2();
+    }
+  }
+}
+
+// ===================================================================
+// INPUT FILLED INDICATOR
+// ===================================================================
+function toggleFilled(input) {
+  if (input.value.trim()) {
+    input.classList.add('filled');
+  } else {
+    input.classList.remove('filled');
+  }
 }
 
 // ===================================================================
