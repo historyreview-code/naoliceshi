@@ -7,17 +7,17 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #f5f3ef;
-    --card: #ffffff;
-    --text: #1a1a1a;
-    --primary: #16a34a;
-    --primary-hover: #15803d;
-    --success: #16a34a;
+    --bg: #fdf6f0;
+    --card: #fffaf5;
+    --text: #2d1f14;
+    --primary: #d97706;
+    --primary-hover: #b45309;
+    --success: #d97706;
     --danger: #dc2626;
-    --muted: #6b7280;
-    --border: #d1d5db;
-    --radius: 12px;
-    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --muted: #8b7355;
+    --border: #e8d5c4;
+    --radius: 14px;
+    --shadow: 0 2px 16px rgba(180, 83, 9, 0.10);
     --fs-base: 18px;
     --fs-lg: 20px;
     --fs-xl: 22px;
@@ -30,10 +30,12 @@
   body.high-contrast .object-card { background: #1a1a1a; border-color: #555; }
   body.high-contrast .result-detail { background: #1a1a1a; }
   body.high-contrast .suggestion-box { background: #1a1a1a; border-color: #555; color: #ccc; }
-  body.high-contrast .phase-badge { background: #222; color: #4ade80; }
+  body.high-contrast .phase-badge { background: #222; color: #fbbf24; }
   body.high-contrast #progress-bar-wrap { background: #222; }
   body.high-contrast .history-item { background: #1a1a1a; border-color: #333; }
   body.high-contrast .toggle-btn { background: #222; border-color: #555; color: #eee; }
+  body.high-contrast .option-btn.correct { background: #14532d !important; border-color: #22c55e !important; color: #bbf7d0 !important; }
+  body.high-contrast .option-btn.wrong { background: #450a0a !important; border-color: #ef4444 !important; color: #fecaca !important; }
 
   html { font-size: var(--fs-base); }
   body {
@@ -83,6 +85,11 @@
 
   .hidden { display: none !important; }
 
+  /* Confetti particles */
+  #confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; overflow: hidden; }
+  .confetti-piece { position: absolute; width: 10px; height: 10px; top: -10px; animation: confettiFall linear forwards; }
+  @keyframes confettiFall { 0% { opacity: 1; transform: translateY(0) rotate(0deg); } 100% { opacity: 0; transform: translateY(100vh) rotate(720deg); } }
+
   /* Toolbar */
   .toolbar {
     display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
@@ -117,7 +124,7 @@
   }
   .progress-seg:last-child { border-right: none; }
   .progress-seg.active { background: var(--primary); color: #fff; }
-  .progress-seg.done { background: #86efac; color: #166534; }
+  .progress-seg.done { background: #fde68a; color: #92400e; }
 
   /* Timer */
   .timer {
@@ -126,7 +133,7 @@
     color: var(--primary);
     margin: 16px 0;
   }
-  .timer.warning { color: var(--danger); animation: pulse 1s ease-in-out infinite; }
+  .timer.warning { color: #dc2626; animation: pulse 1s ease-in-out infinite; }
   @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
 
   /* Objects display */
@@ -153,10 +160,10 @@
     border-radius: 10px; border: 2px solid var(--border); background: var(--card); color: var(--text);
     -webkit-tap-highlight-color: transparent;
   }
-  .option-btn:hover { background: #f0fdf4; border-color: var(--primary); transform: translateX(4px); }
+  .option-btn:hover { background: #fef3c7; border-color: var(--primary); transform: translateX(4px); }
   .option-btn:active { transform: scale(0.98); }
   .option-btn.selected { background: #dbeafe; border-color: var(--primary); }
-  .option-btn.correct { background: #dcfce7 !important; border-color: var(--success) !important; color: #166534 !important; }
+  .option-btn.correct { background: #bbf7d0 !important; border-color: #16a34a !important; color: #166534 !important; }
   .option-btn.wrong { background: #fee2e2 !important; border-color: var(--danger) !important; color: #991b1b !important; }
   .feedback-text { font-size: 0.95rem; margin-top: 8px; font-weight: 600; }
   .feedback-text.correct { color: var(--success); }
@@ -185,14 +192,14 @@
 
   /* Results */
   .result-score { font-size: 2.5rem; font-weight: 800; margin: 16px 0; }
-  .result-score.pass { color: var(--success); }
+  .result-score.pass { color: #d97706; }
   .result-score.fail { color: var(--danger); }
   .result-detail { text-align: left; margin: 12px 0; padding: 12px 16px; background: #f9fafb; border-radius: 8px; font-size: 0.95rem; }
   .result-detail li { list-style: none; padding: 4px 0; }
   .result-detail li::before { content: "• "; color: var(--muted); }
 
   .suggestion-box {
-    background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px;
+    background: #fefce8; border: 1px solid #facc15; border-radius: 12px;
     padding: 16px; margin: 16px 0; text-align: left; font-size: 0.95rem; color: #9a3412;
   }
   .suggestion-box strong { display: block; margin-bottom: 6px; }
@@ -217,6 +224,12 @@
     padding: 12px 16px; margin-bottom: 16px; font-size: 0.9rem; color: #854d0e;
   }
   #resume-banner .btn { margin: 6px 4px 0; font-size: 0.9rem; padding: 8px 20px; }
+
+  /* Feedback animations */
+  .feedback-text.correct { animation: popIn 0.35s ease; }
+  .feedback-text.wrong { animation: shake 0.4s ease; }
+  @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 50% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
 
   /* Transition */
   .page-fade-in { animation: fadeIn 0.25s ease; }
@@ -257,7 +270,8 @@
   <div class="toolbar">
     <button class="toggle-btn" id="btn-large" onclick="toggleLarge()">🔠 大字</button>
     <button class="toggle-btn" id="btn-contrast" onclick="toggleContrast()">◐ 高对比</button>
-    <button class="toggle-btn" id="btn-tts" onclick="toggleTTS()">🔊 语音</button>
+    <button class="toggle-btn" id="btn-tts" onclick="toggleTTS()">🔊 有声</button>
+    <button class="toggle-btn" id="btn-music" onclick="toggleMusic()">🎵 音乐</button>
   </div>
 
   <!-- Progress bar -->
@@ -275,14 +289,14 @@
 
   <!-- ====== WELCOME ====== -->
   <div id="screen-welcome">
-    <h1>🌳 脑力训练游戏</h1>
+    <h1>脑力训练游戏</h1>
     <p>一个有趣的脑力锻炼小游戏，帮助了解自己的短期记忆状况。<br>测试大约需要 <strong>4 分钟</strong>。</p>
-    <div style="background:#f0fdf4;border-radius:10px;padding:14px;text-align:left;font-size:0.9rem;margin-bottom:20px;color:#166534;">
+    <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:16px;text-align:left;font-size:0.9rem;margin-bottom:20px;color:#9a3412;">
       <strong>🌱 游戏玩法</strong><br>
       ① 记住屏幕上的 <strong>3 个物品</strong> → ② 回答简单计算和常识问题<br>
       → ③ <strong>30 秒后</strong>回忆物品 → ④ 继续回答问题<br>
       → ⑤ <strong>3 分钟</strong>再次回忆 → ⑥ 查看结果<br>
-      <span style="font-size:0.85rem;color:#166534;margin-top:4px;display:block;">
+      <span style="font-size:0.85rem;color:#9a3412;margin-top:4px;display:block;">
         ※ 每次测试物品随机更换，避免练习效应
       </span>
     </div>
@@ -378,7 +392,7 @@
       </div>
     </div>
     <div class="suggestion-box hidden" id="suggestion-box">
-      <strong>🌱 温馨提示</strong>
+      <strong>💌 亲爱的朋友</strong>
       <span id="suggestion-text"></span>
     </div>
     <button class="btn" onclick="resetTest()" style="margin-top:12px;">重新测试</button>
@@ -386,6 +400,7 @@
 
 </div>
 </div>
+<div id="confetti-container"></div>
 
 <script>
 // ===================================================================
@@ -405,7 +420,7 @@ let currentObjects = []; // selected for this test
 
 // Questions — season replaced with month/week questions
 const QUESTIONS = [
-  // 简单计算（12题）
+  // ===== 简单计算（15题） =====
   { q: '25 + 17 = ?', opts: ['38', '42', '43', '32'], ans: 1 },
   { q: '64 - 29 = ?', opts: ['45', '33', '35', '37'], ans: 2 },
   { q: '7 × 8 = ?', opts: ['48', '56', '64', '54'], ans: 1 },
@@ -418,7 +433,10 @@ const QUESTIONS = [
   { q: '55 - 18 = ?', opts: ['47', '37', '38', '27'], ans: 1 },
   { q: '8 × 6 = ?', opts: ['46', '48', '54', '42'], ans: 1 },
   { q: '5 × 12 = ?', opts: ['50', '60', '72', '55'], ans: 1 },
-  // 生活常识（10题）
+  { q: '9 × 7 = ?', opts: ['56', '63', '72', '49'], ans: 1 },
+  { q: '48 + 36 = ?', opts: ['74', '84', '82', '94'], ans: 1 },
+  { q: '100 - 43 = ?', opts: ['67', '57', '53', '47'], ans: 1 },
+  // ===== 生活常识（15题） =====
   { q: '我们通常用什么来切菜？', opts: ['铅笔', '菜刀', '梳子', '毛巾'], ans: 1 },
   { q: '下雨天出门应该带什么？', opts: ['扇子', '帽子', '雨伞', '墨镜'], ans: 2 },
   { q: '生病了应该去看什么？', opts: ['老师', '警察', '医生', '司机'], ans: 2 },
@@ -429,7 +447,12 @@ const QUESTIONS = [
   { q: '衣服晒干是因为什么？', opts: ['水分蒸发', '风吹', '太阳晒', '以上都是'], ans: 0 },
   { q: '烧开水时水达到多少度会沸腾？', opts: ['50度', '80度', '100度', '120度'], ans: 2 },
   { q: '一天中早餐应该在什么时间吃？', opts: ['中午', '早上', '晚上', '深夜'], ans: 1 },
-  // 自然与科学（10题）
+  { q: '洗衣服时用什么来去除污渍？', opts: ['洗洁精', '洗衣粉', '牙膏', '酱油'], ans: 1 },
+  { q: '切菜时如果不小心切到手，应该怎么做？', opts: ['继续切', '用水冲一下', '止血包扎', '贴上透明胶'], ans: 2 },
+  { q: '手机没电了应该怎么做？', opts: ['扔掉', '晒太阳', '充电', '用水泡'], ans: 2 },
+  { q: '以下哪种食物是早餐常见的？', opts: ['米饭', '面条', '包子', '火锅'], ans: 2 },
+  { q: '买水果时一般用什么称重量？', opts: ['尺子', '秤', '量杯', '温度计'], ans: 1 },
+  // ===== 自然与科学（15题） =====
   { q: '什么动物会"汪汪"叫？', opts: ['猫', '狗', '鸡', '牛'], ans: 1 },
   { q: '黄色加蓝色混合成什么颜色？', opts: ['红色', '绿色', '紫色', '橙色'], ans: 1 },
   { q: '什么季节叶子会变黄掉落？', opts: ['春天', '夏天', '秋天', '冬天'], ans: 2 },
@@ -440,7 +463,12 @@ const QUESTIONS = [
   { q: '以下哪种是爬行动物？', opts: ['乌龟', '青蛙', '金鱼', '麻雀'], ans: 0 },
   { q: '海水是什么味道？', opts: ['甜味', '酸味', '咸味', '苦味'], ans: 2 },
   { q: '太阳是什么？', opts: ['行星', '卫星', '恒星', '彗星'], ans: 2 },
-  // 历史与文化（7题）
+  { q: '以下哪个动物能在水里和陆地上生活？', opts: ['猫', '青蛙', '鸡', '兔子'], ans: 1 },
+  { q: '月亮的形状为什么会变化？', opts: ['被吃掉', '反射阳光角度变', '被云挡住', '自己变形'], ans: 1 },
+  { q: '一年有四个季节，以下哪个不是？', opts: ['春天', '夏天', '雨季', '冬天'], ans: 2 },
+  { q: '以下哪种水果是长在树上的？', opts: ['西瓜', '草莓', '苹果', '花生'], ans: 2 },
+  { q: '哪种动物被称为"森林之王"？', opts: ['大象', '老虎', '猴子', '长颈鹿'], ans: 1 },
+  // ===== 历史与文化（10题） =====
   { q: '中国的首都是哪个城市？', opts: ['上海', '广州', '北京', '深圳'], ans: 2 },
   { q: '中国的国旗是什么颜色？', opts: ['蓝色', '红色', '绿色', '黄色'], ans: 1 },
   { q: '以下哪个是中国的传统节日？', opts: ['圣诞节', '中秋节', '复活节', '万圣节'], ans: 1 },
@@ -448,14 +476,19 @@ const QUESTIONS = [
   { q: '中国的母亲河是哪条河？', opts: ['长江', '黄河', '珠江', '淮河'], ans: 1 },
   { q: '熊猫主要生活在中国的哪个地区？', opts: ['新疆', '四川', '海南', '黑龙江'], ans: 1 },
   { q: '以下哪种食物含有最多维生素C？', opts: ['米饭', '面条', '橙子', '鸡蛋'], ans: 2 },
-  // 月份与时间（6题）
+  { q: '以下哪个是中国古代四大发明之一？', opts: ['电灯', '造纸术', '电话', '自行车'], ans: 1 },
+  { q: '中国最长的河流是哪条？', opts: ['黄河', '珠江', '长江', '淮河'], ans: 2 },
+  { q: '以下哪种动物是中国十二生肖之一？', opts: ['猫', '大象', '龙', '狮子'], ans: 2 },
+  // ===== 月份与时间（8题） =====
   { q: '一年有多少个月份？', opts: ['10', '11', '12', '13'], ans: 2 },
   { q: '一个月大约有多少天？', opts: ['20天', '25天', '30天', '35天'], ans: 2 },
   { q: '一周有几天？', opts: ['5天', '6天', '7天', '8天'], ans: 2 },
   { q: '一年中哪个月份只有28或29天？', opts: ['1月', '2月', '6月', '12月'], ans: 1 },
   { q: '一天有多少个小时？', opts: ['12', '24', '36', '48'], ans: 1 },
   { q: '一周中哪一天通常被认为是周末的开始？', opts: ['星期四', '星期五', '星期六', '星期日'], ans: 2 },
-  // 会话社交（新增30题）
+  { q: '半小时等于多少分钟？', opts: ['20分钟', '25分钟', '30分钟', '60分钟'], ans: 2 },
+  { q: '一年有多少天？', opts: ['360天', '365天', '370天', '400天'], ans: 1 },
+  // ===== 会话社交（32题） =====
   { q: '如果有人对你说"谢谢"，你应该回答什么？', opts: ['不用谢', '好的', '再见', '没关系'], ans: 0 },
   { q: '想向别人借东西时，应该先说什么？', opts: ['给我', '请问', '你好', '喂'], ans: 1 },
   { q: '见到认识的人时，通常说什么？', opts: ['再见', '你好', '好吃', '晚安'], ans: 1 },
@@ -486,11 +519,28 @@ const QUESTIONS = [
   { q: '别人帮助了你，你应该说什么？', opts: ['再见', '谢谢', '晚安', '你好'], ans: 1 },
   { q: '晚上睡觉前应该对家人说什么？', opts: ['早安', '午安', '晚安', '再见'], ans: 2 },
   { q: '在超市选完东西后去哪里付钱？', opts: ['门口', '收银台', '货架', '厕所'], ans: 1 },
-];;
+  { q: '如果你打碎了别人的东西，应该怎么做？', opts: ['逃跑', '承认并道歉', '藏起来', '怪别人'], ans: 1 },
+  { q: '在餐厅吃完饭后需要做什么？', opts: ['直接走', '付钱', '洗碗', '打包所有人'], ans: 1 },
+  // ===== 趣味趣味（12题） =====
+  { q: '哪种动物走路会"一摇一摆"？', opts: ['猫', '鸭子', '老虎', '兔子'], ans: 1 },
+  { q: '猫最喜欢的食物是什么？', opts: ['草', '鱼', '骨头', '米饭'], ans: 1 },
+  { q: '以下哪种东西会在天上飞？', opts: ['鱼', '飞机', '石头', '桌椅'], ans: 1 },
+  { q: '西瓜的外皮是什么颜色？', opts: ['红色', '黄色', '绿色', '蓝色'], ans: 2 },
+  { q: '以下哪种动物会"喵喵"叫？', opts: ['狗', '猫', '牛', '羊'], ans: 1 },
+  { q: '一天中太阳从哪个方向升起？', opts: ['西方', '南方', '东方', '北方'], ans: 2 },
+  { q: '以下哪种水果是黄色的？', opts: ['苹果', '香蕉', '葡萄', '蓝莓'], ans: 1 },
+  { q: '雪花的形状像什么？', opts: ['圆形', '六角形', '三角形', '方形'], ans: 1 },
+  { q: '青蛙小时候叫什么？', opts: ['小鱼', '蝌蚪', '虫子', '泥鳅'], ans: 1 },
+  { q: '雨后天上常常出现什么？', opts: ['月亮', '星星', '彩虹', '太阳'], ans: 2 },
+  { q: '树木通过什么吸收水分？', opts: ['叶子', '树枝', '树根', '树皮'], ans: 2 },
+  { q: '企鹅的身体是什么颜色的？', opts: ['全白', '黑白', '棕色', '灰色'], ans: 1 },
+];;;
 
 // ===================================================================
 // STATE
 // ===================================================================
+let lastAnswerIdx = -1;
+
 let state = {
   phase: 'welcome',
   recall1Results: [],
@@ -508,7 +558,7 @@ let state = {
 // ===================================================================
 // PREFERENCES (localStorage)
 // ===================================================================
-let prefs = { largeText: false, highContrast: false, ttsEnabled: false };
+let prefs = { largeText: false, highContrast: false, ttsEnabled: true, musicEnabled: false };
 
 function loadPrefs() {
   try {
@@ -538,6 +588,8 @@ function toggleContrast() {
 function toggleTTS() {
   prefs.ttsEnabled = !prefs.ttsEnabled;
   document.getElementById('btn-tts').classList.toggle('active', prefs.ttsEnabled);
+  document.getElementById('btn-tts').textContent = prefs.ttsEnabled ? '🔊 有声' : '🔇 静音';
+  document.getElementById('btn-music').textContent = prefs.musicEnabled ? '🎵 音乐' : '🎵 静音';
   savePrefs();
 }
 
@@ -550,8 +602,19 @@ function speak(text) {
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'zh-CN';
-  u.rate = 0.88;
+  u.rate = 0.82;
+  u.pitch = 1.05;
+  u.volume = 1;
+  // Try to find a natural Chinese voice
+  const voices = window.speechSynthesis.getVoices();
+  const zhVoice = voices.find(v => v.lang.startsWith('zh') && v.localService) 
+               || voices.find(v => v.lang.startsWith('zh'));
+  if (zhVoice) u.voice = zhVoice;
   window.speechSynthesis.speak(u);
+  // Pre-load voices for next call
+  if (voices.length === 0) {
+    window.speechSynthesis.getVoices();
+  }
 }
 
 // ===================================================================
@@ -564,10 +627,79 @@ function playBeep() {
     const gain = ctx.createGain();
     osc.connect(gain); gain.connect(ctx.destination);
     osc.frequency.value = 880;
+    osc.type = 'sine';
     gain.gain.setValueAtTime(0.3, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
     osc.start(); osc.stop(ctx.currentTime + 0.6);
   } catch(e) { /* audio not available */ }
+}
+
+function playCorrectSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(523, ctx.currentTime);
+    osc.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
+    osc.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    osc.start(); osc.stop(ctx.currentTime + 0.5);
+  } catch(e) {}
+}
+
+function playWrongSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(300, ctx.currentTime);
+    osc.frequency.setValueAtTime(200, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    osc.start(); osc.stop(ctx.currentTime + 0.4);
+  } catch(e) {}
+}
+
+function playCelebrationSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [523, 587, 659, 784, 880, 1047];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.3);
+      osc.start(ctx.currentTime + i * 0.12);
+      osc.stop(ctx.currentTime + i * 0.12 + 0.3);
+    });
+  } catch(e) {}
+}
+
+function playFullScoreSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    // A cheerful fanfare
+    const notes = [523, 659, 784, 1047, 784, 1047, 1319];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.15 + 0.4);
+      osc.start(ctx.currentTime + i * 0.15);
+      osc.stop(ctx.currentTime + i * 0.15 + 0.4);
+    });
+  } catch(e) {}
 }
 
 // ===================================================================
@@ -804,7 +936,12 @@ let currentQuestionData = null;
 function presentQuestion() {
   questionAnswered = false;
   
-  const idx = Math.floor(Math.random() * QUESTIONS.length);
+  let idx;
+  let attempts = 0;
+  do {
+    idx = Math.floor(Math.random() * QUESTIONS.length);
+    attempts++;
+  } while (QUESTIONS[idx].ans === lastAnswerIdx && attempts < 20);
   const q = QUESTIONS[idx];
   currentQuestionData = q;
   state.totalQuestions++;
@@ -848,6 +985,12 @@ function answerQuestion(selected) {
       if (i === q.ans) btn.classList.add('correct');
       if (i === selected && selected !== q.ans) btn.classList.add('wrong');
     });
+    // Play sound effect
+    if (selected === q.ans) {
+      playCorrectSound();
+    } else {
+      playWrongSound();
+    }
   }, 150);
 
   const fb = document.getElementById('question-feedback');
@@ -862,12 +1005,15 @@ function answerQuestion(selected) {
   }
 
   state.questionsAsked++;
-  document.getElementById('question-next').classList.remove('hidden');
+  // Auto-advance after a short delay
+  setTimeout(() => {
+    if (checkAndTriggerRecall()) return;
+    presentQuestion();
+  }, 1200);
 }
 
 function nextQuestion() {
   if (checkAndTriggerRecall()) return;
-  document.getElementById('question-next').classList.add('hidden');
   presentQuestion();
 }
 
@@ -1048,21 +1194,37 @@ function showResults() {
 
   if (pct >= 80) {
     scoreEl.className = 'result-score pass';
-    badgeEl.textContent = '🌳 结果良好';
-    summaryEl.innerHTML = `短期记忆表现正常。<br>30秒回忆: ${r1}/3 正确 | 3:30回忆: ${r2}/3 正确<br>答题正确率: ${state.correctAnswers}/${state.questionsAsked}<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ${objectsNamed}</span>`;
-    suggestEl.classList.add('hidden');
+    badgeEl.textContent = '🌟 表现优秀';
+    // Check for full score
+    const isFullScore = (r1 === 3 && r2 === 3 && state.correctAnswers === state.questionsAsked);
+    if (isFullScore) {
+      summaryEl.innerHTML = `🎉 太棒了！亲爱的朋友，您全部答对了！<br>30秒回忆: ${r1}/3 正确 | 3:30回忆: ${r2}/3 正确<br>答题正确率: ${state.correctAnswers}/${state.questionsAsked}<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ${objectsNamed}</span>`;
+      launchConfetti();
+      playFullScoreSound();
+      setTimeout(launchConfetti, 800);
+      launchConfetti();
+      setTimeout(launchConfetti, 1500);
+      speak('太棒了！您全部答对了！您的记忆力非常出色！建议您过一段时间再来挑战，看看能否继续保持好成绩！');
+    } else {
+      summaryEl.innerHTML = `🌟 太棒了！<br>30秒回忆: ${r1}/3 正确 | 3:30回忆: ${r2}/3 正确<br>答题正确率: ${state.correctAnswers}/${state.questionsAsked}<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ${objectsNamed}</span>`;
+      launchConfetti();
+      playCelebrationSound();
+      setTimeout(launchConfetti, 800);
+    }
+    suggestEl.classList.remove('hidden');
+    suggestText.textContent = '亲爱的朋友，您的表现非常棒！记忆力状态良好。建议您可以过一段时间再来测试，持续关注自己的认知健康哦！';
   } else if (pct >= 50) {
     scoreEl.className = 'result-score pass';
-    badgeEl.textContent = '🌱 结果一般';
-    summaryEl.innerHTML = `短期记忆有部分减损迹象。<br>30秒回忆: ${r1}/3 正确 | 3:30回忆: ${r2}/3 正确<br>答题正确率: ${state.correctAnswers}/${state.questionsAsked}<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ${objectsNamed}</span>`;
+    badgeEl.textContent = '💪 继续加油';
+    summaryEl.innerHTML = `亲爱的朋友，继续加油哦！<br>30秒回忆: ${r1}/3 正确 | 3:30回忆: ${r2}/3 正确<br>答题正确率: ${state.correctAnswers}/${state.questionsAsked}<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ${objectsNamed}</span>`;
     suggestEl.classList.remove('hidden');
-    suggestText.textContent = '建议多进行脑力锻炼，如阅读、数独、学习新技能。如有持续记忆下降，建议咨询医生做进一步评估。';
+    suggestText.textContent = '亲爱的朋友，您的短期记忆有一些减损的迹象。建议您多做几次测试，观察变化趋势。平时可以多进行脑力锻炼，如阅读、数独、学习新技能等。如果记忆下降持续存在，建议在方便的时候咨询医生做进一步评估。早期阿兹海默症已经有了有效的治疗方案，早发现、早干预非常重要！';
   } else {
     scoreEl.className = 'result-score fail';
-    badgeEl.textContent = '🍂 建议关注';
-    summaryEl.innerHTML = `短期记忆有明显减损迹象。<br>30秒回忆: ${r1}/3 正确 | 3:30回忆: ${r2}/3 正确<br>答题正确率: ${state.correctAnswers}/${state.questionsAsked}<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ${objectsNamed}</span>`;
+    badgeEl.textContent = '🧐 关注健康';
+    summaryEl.innerHTML = `亲爱的朋友，让我们一起关注健康。<br>30秒回忆: ${r1}/3 正确 | 3:30回忆: ${r2}/3 正确<br>答题正确率: ${state.correctAnswers}/${state.questionsAsked}<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ${objectsNamed}</span>`;
     suggestEl.classList.remove('hidden');
-    suggestText.textContent = '本测试仅为初步筛查，不能代替专业诊断。强烈建议您咨询神经内科或老年科医生。早期发现、早期干预非常重要。';
+    suggestText.textContent = '亲爱的朋友，本次测试显示您的短期记忆有一些明显的减损迹象。本测试仅为初步筛查，不能代替专业诊断。\n\n医学上对于早期阿兹海默症已经有了有效的治疗方案，早期发现、早期干预非常重要。强烈建议您在方便的时候咨询神经内科或老年科医生，做一个全面的评估。同时建议多做几次测试，观察变化趋势。';
   }
 
   // Save history
@@ -1154,6 +1316,28 @@ function handleRecallKey(event, phase) {
 }
 
 // ===================================================================
+// CONFETTI CELEBRATION
+// ===================================================================
+function launchConfetti() {
+  const container = document.getElementById('confetti-container');
+  const colors = ['#d97706', '#f59e0b', '#fbbf24', '#ef4444', '#ec4899', '#8b5cf6', '#06b6d4', '#22c55e'];
+  const shapes = ['circle', 'square'];
+  for (let i = 0; i < 60; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const size = 6 + Math.random() * 8;
+    const left = Math.random() * 100;
+    const delay = Math.random() * 1.5;
+    const duration = 2 + Math.random() * 2;
+    const shape = shapes[Math.floor(Math.random() * shapes.length)];
+    piece.style.cssText = `left:${left}%;width:${size}px;height:${size}px;background:${color};border-radius:${shape === 'circle' ? '50%' : '2px'};animation-delay:${delay}s;animation-duration:${duration}s;`;
+    container.appendChild(piece);
+    setTimeout(() => piece.remove(), (delay + duration) * 1000 + 100);
+  }
+}
+
+// ===================================================================
 // INPUT FILLED INDICATOR
 // ===================================================================
 function toggleFilled(input) {
@@ -1165,12 +1349,85 @@ function toggleFilled(input) {
 }
 
 // ===================================================================
+// BACKGROUND MUSIC (Web Audio API – relaxing ambient)
+// ===================================================================
+let bgMusicCtx = null;
+let bgMusicGain = null;
+let bgMusicOscillators = [];
+let bgMusicPlaying = false;
+
+function toggleMusic() {
+  prefs.musicEnabled = !prefs.musicEnabled;
+  document.getElementById('btn-music').classList.toggle('active', prefs.musicEnabled);
+  document.getElementById('btn-music').textContent = prefs.musicEnabled ? '🎵 音乐' : '🎵 静音';
+  savePrefs();
+  if (prefs.musicEnabled) {
+    startBgMusic();
+  } else {
+    stopBgMusic();
+  }
+}
+
+function startBgMusic() {
+  if (bgMusicPlaying) return;
+  try {
+    bgMusicCtx = new (window.AudioContext || window.webkitAudioContext)();
+    bgMusicGain = bgMusicCtx.createGain();
+    bgMusicGain.gain.value = 0.06;
+    bgMusicGain.connect(bgMusicCtx.destination);
+
+    // Pleasant chord: C major (C4, E4, G4) + soft A4
+    const chord = [261.63, 329.63, 392.00, 440.00];
+    bgMusicOscillators = chord.map(freq => {
+      const osc = bgMusicCtx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      // Slight detune for warmth
+      osc.detune.value = (Math.random() - 0.5) * 3;
+      const oscGain = bgMusicCtx.createGain();
+      oscGain.gain.value = 0.5 + Math.random() * 0.3;
+      osc.connect(oscGain);
+      oscGain.connect(bgMusicGain);
+      osc.start();
+      return osc;
+    });
+
+    // Slow LFO for gentle volume pulse
+    const lfo = bgMusicCtx.createOscillator();
+    const lfoGain = bgMusicCtx.createGain();
+    lfo.frequency.value = 0.15;
+    lfoGain.gain.value = 0.3;
+    lfo.connect(lfoGain);
+    lfoGain.connect(bgMusicGain.gain);
+    lfo.start();
+    bgMusicOscillators.push(lfo);
+
+    bgMusicPlaying = true;
+  } catch(e) {
+    bgMusicPlaying = false;
+  }
+}
+
+function stopBgMusic() {
+  if (!bgMusicPlaying) return;
+  try {
+    bgMusicOscillators.forEach(osc => {
+      try { osc.stop(); } catch(e) {}
+    });
+    bgMusicOscillators = [];
+    if (bgMusicCtx) { bgMusicCtx.close(); bgMusicCtx = null; }
+  } catch(e) {}
+  bgMusicPlaying = false;
+}
+
+// ===================================================================
 // RESET
 // ===================================================================
 function resetTest() {
   if (state.objectsTimerInterval) { clearInterval(state.objectsTimerInterval); state.objectsTimerInterval = null; }
   if (state.questionTimerInterval) { clearInterval(state.questionTimerInterval); state.questionTimerInterval = null; }
   clearBackup();
+  lastAnswerIdx = -1;
   state = { phase:'welcome', recall1Results:[], recall2Results:[], recall1Done:false, recall2Done:false,
     questionsAsked:0, totalQuestions:0, correctAnswers:0, questionTimerInterval:null, objectsTimerInterval:null, studyStartTime:null };
   showScreen('screen-welcome');
@@ -1186,6 +1443,8 @@ document.getElementById('btn-large').classList.toggle('active', prefs.largeText)
 document.body.classList.toggle('high-contrast', prefs.highContrast);
 document.getElementById('btn-contrast').classList.toggle('active', prefs.highContrast);
 document.getElementById('btn-tts').classList.toggle('active', prefs.ttsEnabled);
+  document.getElementById('btn-tts').textContent = prefs.ttsEnabled ? '🔊 有声' : '🔇 静音';
+  document.getElementById('btn-music').textContent = prefs.musicEnabled ? '🎵 音乐' : '🎵 静音';
 renderHistory();
 checkResume();
 </script>
