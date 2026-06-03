@@ -1,64 +1,35 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><title>🛕 AI Temple</title>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧠 脑力训练游戏</title>
 <style>
-body{font-family:system-ui,-apple-system,sans-serif;max-width:680px;margin:40px auto;padding:0 24px;line-height:1.7;color:#1a1a2e;background:#fafafa}
-h1{font-size:2rem;margin-bottom:8px}
-h2{font-size:1.2rem;margin-top:32px;border-bottom:2px solid #e5e7eb;padding-bottom:6px}
-pre{background:#1e293b;color:#e2e8f0;padding:14px 18px;border-radius:10px;overflow-x:auto;font-size:14px;position:relative}
-pre .copy{position:absolute;top:8px;right:8px;background:#475569;color:#fff;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:12px}
-pre .copy:hover{background:#64748b}
-code{background:#e5e7eb;padding:2px 6px;border-radius:4px;font-size:0.9em}
-pre code{background:transparent;padding:0;color:inherit}
-.card{background:#fff;border-radius:12px;padding:16px 20px;margin:16px 0;border:1px solid #e5e7eb}
-.tag{display:inline-block;background:#dbeafe;color:#1e40af;padding:2px 10px;border-radius:12px;font-size:0.8rem;font-weight:500}
-.tag.green{background:#d1fae5;color:#065f46}
-.key{font-family:monospace;background:#fef3c7;padding:8px 12px;border-radius:8px;border:1px solid #fde68a;word-break:break-all;margin:8px 0;font-size:13px}
+body{font-family:system-ui,-apple-system,sans-serif;max-width:600px;margin:60px auto;padding:0 24px;text-align:center;color:#1a1a2e;background:#f5f3ef;line-height:1.6}
+h1{font-size:2.2rem;margin-bottom:8px}
+.sub{color:#6b7280;margin-bottom:32px}
+.card{background:#fff;border-radius:16px;padding:32px 24px;box-shadow:0 2px 12px rgba(0,0,0,0.08);margin-bottom:16px}
+.btn{display:inline-block;background:#16a34a;color:#fff;padding:14px 36px;border-radius:12px;text-decoration:none;font-size:1.1rem;font-weight:500;transition:background 0.2s}
+.btn:hover{background:#15803d}
+.desc{font-size:0.95rem;color:#4b5563;margin:20px 0}
+.sponsor{margin-top:40px;padding-top:24px;border-top:1px solid #d1d5db}
+.sponsor p{font-size:0.85rem;color:#9ca3af;margin-bottom:12px}
+.sponsor a{display:inline-block;padding:8px 20px;border-radius:8px;text-decoration:none;font-size:0.9rem;font-weight:500;margin:0 6px}
+.coffee{background:#f59e0b;color:#fff}
+.deep{background:#8b5cf6;color:#fff}
 </style>
-</head><body>
-
-<h1>🛕 AI Temple</h1>
-<p style="color:#6b7280;margin-top:-8px">Stripe 支付服务 — 已配置测试密钥 ✅</p>
-
+</head>
+<body>
+<h1>🧠 脑力训练游戏</h1>
+<p class="sub">短期记忆自测工具</p>
 <div class="card">
-  <span class="tag green">🟢 服务已启动</span>
-  <span class="tag" style="margin-left:8px">🔑 测试模式</span>
-  <p>Stripe 测试密钥已配置，服务运行在 <code>localhost:3000</code>。</p>
+  <p class="desc">一个有趣的脑力锻炼小游戏，帮助了解自己的短期记忆状况。<br>测试大约需要 <strong>4 分钟</strong>。</p>
+  <a class="btn" href="brain-game.html">🎮 开始测试</a>
 </div>
-
-<h2>测试付款流程</h2>
-
-<p>由于沙盒限制，本机 localhost 连接不可用。</p>
-<p>请在你的<strong>终端（Terminal）</strong>中运行以下命令测试：</p>
-
-<h3>1️⃣ 创建一笔 $5 的付款链接</h3>
-<pre>curl -X POST http://localhost:3000/api/create-payment-link \
-  -H "Content-Type: application/json" \
-  -d '{"amount": 5, "description": "AI 分析报告"}'</pre>
-
-<h3>2️⃣ 或者用演示脚本</h3>
-<pre>node /Users/newclaw/Documents/Codex/2026-06-03/ai-temple/demo.js</pre>
-
-<h2>付款链接测试卡</h2>
-<p>在 Stripe 付款页面，用以下测试卡号支付（不会产生真实扣款）：</p>
-<pre>卡号: 4242 4242 4242 4242
-到期日: 任何未来日期
-CVC: 任意 3 位数字</pre>
-
-<h2>AI Agent 调用</h2>
-<pre>const { getOpenAITools, handleToolCall } = require('./src/openai-integration');
-
-// AI 自主收款
-handleToolCall('generate_payment_link', {
-  amount: 5,
-  description: 'AI 图表生成'
-});</pre>
-
-<h2>故障排查</h2>
-<p>如果 curl 报 <code>Failed to connect to 127.0.0.1 port 7890</code>：</p>
-<pre># 你的系统有 HTTP 代理，需要临时绕过
-unset http_proxy; unset https_proxy
-# 或者
-http_proxy="" curl -X POST http://localhost:3000/...</pre>
-
-</body></html>
+<div class="sponsor">
+  <p>💝 喜欢这个游戏？赞助支持开发者</p>
+  <a class="coffee" href="https://buy.stripe.com/test_8x2eV5fGgfnTfOTebVgrS02" target="_blank">☕ 请喝咖啡 $3</a>
+  <a class="deep" href="https://buy.stripe.com/test_aFa7sDfGg4Jf46b4BlgrS03" target="_blank">🌟 深度赞助 $8</a>
+</div>
+</body>
+</html>
