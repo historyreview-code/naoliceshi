@@ -1207,6 +1207,7 @@ function showResults() {
   else if (r1 >= 2 && r2 >= 2) cb = 0.5;
   const totalScore = Math.round((r1 + r2 + cb) * 10) / 10;
   const pct = Math.round((totalScore / 7) * 100);
+  const rate = state.questionsAsked > 0 ? state.correctAnswers / state.questionsAsked : 0;
 
   const scoreEl = document.getElementById('result-score');
   const summaryEl = document.getElementById('result-summary');
