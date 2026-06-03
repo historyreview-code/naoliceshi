@@ -4,7 +4,6 @@
 
 ## 在线体验
 
-访问以下地址即可开始测试：
 https://historyreview-code.github.io/naoliceshi/
 
 ## 游戏玩法
@@ -16,11 +15,9 @@ https://historyreview-code.github.io/naoliceshi/
 5. **3 分钟**再次回忆
 6. 查看结果
 
-每次测试物品随机更换，避免练习效应。
+## 赞助支持
 
-## 赞助
+如果你觉得这个游戏有帮助，欢迎扫码赞助支持 ❤️
 
-如果你喜欢这个游戏，欢迎赞助支持：
-
-- [☕ 请喝咖啡 $3](https://buy.stripe.com/test_8x2eV5fGgfnTfOTebVgrS02)
-- [🌟 深度赞助 $8](https://buy.stripe.com/test_aFa7sDfGg4Jf46b4BlgrS03)
+- 💙 **支付宝** — 底部点击支付宝按钮扫码
+- 💚 **微信** — 底部点击微信按钮扫码
