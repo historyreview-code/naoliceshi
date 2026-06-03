@@ -260,6 +260,42 @@
     .option-btn { padding: 10px 12px; font-size: 0.9rem; }
     .recall-slot input { width: 80px; padding: 8px 6px; font-size: 0.95rem; }
   }
+
+  /* 固定底部赞助栏 */
+  .sponsor-bar {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    z-index: 99999 !important;
+    background: rgba(15,23,42,0.95) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 8px 16px !important;
+    text-align: center !important;
+    border-top: 1px solid rgba(255,255,255,0.1) !important;
+    box-sizing: border-box !important;
+  }
+  .sponsor-bar-inner {
+    display: flex !important;
+    gap: 10px !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    max-width: 680px !important;
+    margin: 0 auto !important;
+  }
+  .sponsor-bar a {
+    display: inline-block !important;
+    padding: 6px 16px !important;
+    border-radius: 6px !important;
+    text-decoration: none !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+  }
+  .sponsor-gap { height: 54px !important; }
+
 </style>
 </head>
 <body>
@@ -1449,24 +1485,15 @@ renderHistory();
 checkResume();
 </script>
 
-    <!-- ====== SPONSOR FIXED BOTTOM ====== -->
-    <div style="position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(15,23,42,0.92);backdrop-filter:blur(8px);padding:8px 12px;text-align:center;border-top:1px solid rgba(255,255,255,0.1);">
-      <div style="display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;">
-        <span style="font-size:0.8rem;color:#94a3b8;margin-right:4px;">💝 赞助</span>
-        <a href="https://buy.stripe.com/test_8x2eV5fGgfnTfOTebVgrS02"
-           target="_blank"
-           style="display:inline-block;padding:6px 14px;border-radius:6px;text-decoration:none;font-size:0.8rem;background:#f59e0b;color:#fff;font-weight:500;">
-          ☕ $3
-        </a>
-        <a href="https://buy.stripe.com/test_aFa7sDfGg4Jf46b4BlgrS03"
-           target="_blank"
-           style="display:inline-block;padding:6px 14px;border-radius:6px;text-decoration:none;font-size:0.8rem;background:#8b5cf6;color:#fff;font-weight:500;">
-          🌟 $8
-        </a>
+    <!-- ====== SPONSOR BAR ====== -->
+    <div class="sponsor-bar">
+      <div class="sponsor-bar-inner">
+        <span style="font-size:0.8rem;color:#94a3b8;">💝 赞助</span>
+        <a href="https://buy.stripe.com/test_8x2eV5fGgfnTfOTebVgrS02" target="_blank" style="background:#f59e0b;color:#fff;">☕ 请喝咖啡 $3</a>
+        <a href="https://buy.stripe.com/test_aFa7sDfGg4Jf46b4BlgrS03" target="_blank" style="background:#8b5cf6;color:#fff;">🌟 深度赞助 $8</a>
       </div>
     </div>
-    <!-- 底部间距，避免被固定栏遮挡 -->
-    <div style="height:52px;"></div>
+    <div class="sponsor-gap"></div>
 
 </body>
 </html>
