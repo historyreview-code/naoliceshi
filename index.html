@@ -762,7 +762,7 @@ function renderStudyPhase() {
   updateTTSIndicator();
 
   var readyBtn = document.getElementById('btn-ready');
-  if (readyBtn) readyBtn.style.display = 'none';
+  if (readyBtn) readyBtn.classList.add('hidden');
 
   const grid = document.getElementById('study-objects');
   grid.innerHTML = currentObjects.map(o => '<div class="object-card">'
@@ -781,7 +781,7 @@ function renderStudyPhase() {
   playBeep();
   // Show ready button
   readyBtn = document.getElementById('btn-ready');
-  if (readyBtn) readyBtn.style.display = '';
+  if (readyBtn) readyBtn.classList.remove('hidden');
 }
 
 // Skip waiting when player clicks "准备好了"
@@ -792,7 +792,7 @@ function studyReady() {
   }
   state.studyStartTime = Date.now();
   var readyBtn = document.getElementById('btn-ready');
-  if (readyBtn) readyBtn.style.display = 'none';
+  if (readyBtn) readyBtn.classList.add('hidden');
   backupState();
   checkAndTriggerRecall();
 }
