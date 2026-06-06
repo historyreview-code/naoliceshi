@@ -367,6 +367,10 @@
         <div class="study-ring-text" id="study-timer">30</div>
       </div>
       <div class="objects-grid" id="study-objects"></div>
+      <button class="btn btn-sm" id="btn-ready" onclick="studyReady()" style="margin-top:12px;background:var(--muted);font-size:0.9rem;padding:8px 24px">
+        准备好了 →
+      </button>
+      <p style="font-size:0.75rem;color:var(--muted);margin-top:4px">倒计时自动进入下一步，也可点击上方按钮提前</p>
     </div>
 
   <div id="screen-distract" class="screen hidden">
@@ -757,6 +761,9 @@ function renderStudyPhase() {
   document.getElementById('btn-tts').classList.toggle('active', prefs.ttsEnabled);
   updateTTSIndicator();
 
+  const readyBtn = document.getElementById('btn-ready');
+  if (readyBtn) readyBtn.style.display = 'none';
+
   const grid = document.getElementById('study-objects');
   grid.innerHTML = currentObjects.map(o => '<div class="object-card">'
     + '<span class="emoji">' + o.emoji + '</span>'
@@ -772,6 +779,23 @@ function renderStudyPhase() {
 
   speak('请记忆以下物品。记忆倒计时30秒。');
   playBeep();
+  // Show ready button
+  const readyBtn = document.getElementById('btn-ready');
+  if (readyBtn) readyBtn.style.display = 'inline-block';
+}
+
+// Skip waiting when player clicks "准备好了"
+function studyReady() {
+  if (state.objectsTimerInterval) {
+    clearInterval(state.objectsTimerInterval);
+    state.objectsTimerInterval = null;
+  }
+  state.studyStartTime = Date.now();
+  const readyBtn = document.getElementById('btn-ready');
+  if (readyBtn) readyBtn.style.display = 'none';
+  backupState();
+  checkAndTriggerRecall();
+}
 
   if (state.objectsTimerInterval) clearInterval(state.objectsTimerInterval);
   state.objectsTimerInterval = setInterval(function() {
