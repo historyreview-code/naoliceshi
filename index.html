@@ -782,21 +782,10 @@ function renderStudyPhase() {
   // Show ready button
   readyBtn = document.getElementById('btn-ready');
   if (readyBtn) readyBtn.classList.remove('hidden');
-}
+  // Hide ready button after click
+  readyBtn = document.getElementById('btn-ready');
 
-// Skip waiting when player clicks "准备好了"
-function studyReady() {
-  if (state.objectsTimerInterval) {
-    clearInterval(state.objectsTimerInterval);
-    state.objectsTimerInterval = null;
-  }
-  state.studyStartTime = Date.now();
-  var readyBtn = document.getElementById('btn-ready');
-  if (readyBtn) readyBtn.classList.add('hidden');
-  backupState();
-  checkAndTriggerRecall();
-}
-
+  // Start countdown
   if (state.objectsTimerInterval) clearInterval(state.objectsTimerInterval);
   state.objectsTimerInterval = setInterval(function() {
     secLeft--;
@@ -817,6 +806,19 @@ function studyReady() {
       checkAndTriggerRecall();
     }
   }, 1000);
+}
+
+// Skip waiting when player clicks "准备好了"
+function studyReady() {
+  if (state.objectsTimerInterval) {
+    clearInterval(state.objectsTimerInterval);
+    state.objectsTimerInterval = null;
+  }
+  state.studyStartTime = Date.now();
+  var readyBtn = document.getElementById('btn-ready');
+  if (readyBtn) readyBtn.classList.add('hidden');
+  backupState();
+  checkAndTriggerRecall();
 }
 
 // ===================================================================
