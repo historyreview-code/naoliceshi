@@ -580,19 +580,23 @@ function updateTTSIndicator() {
   });
 }
 function speak(text) {
-  if (!prefs.ttsEnabled || !window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'zh-CN';
-  u.rate = 0.9;
-  u.onerror = function() { /* TTS not available */ };
-  window.speechSynthesis.speak(u);
+  try {
+    if (!prefs.ttsEnabled || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN';
+    u.rate = 0.9;
+    u.onerror = function() {};
+    window.speechSynthesis.speak(u);
+  } catch(e) { /* TTS not available */ }
 }
 function playBeep() {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    var ctx = new AC();
+    var o = ctx.createOscillator();
+    var g = ctx.createGain();
     o.type = 'sine'; o.frequency.value = 800;
     g.gain.value = 0.15;
     o.connect(g); g.connect(ctx.destination);
@@ -600,7 +604,7 @@ function playBeep() {
   } catch(e) {}
 }
 function vibrate(pattern) {
-  if (navigator.vibrate) navigator.vibrate(pattern || 15);
+  try { if (navigator.vibrate) navigator.vibrate(pattern || 15); } catch(e) {}
 }
 // ===================================================================
 // DIFFICULTY
@@ -1445,7 +1449,7 @@ function showResults() {
 // ===================================================================
 function checkResume() {
   try {
-    const data = JSON.parse(sessionStorage.getItem('ad_backup'));
+    var data = JSON.parse(sessionStorage.getItem('ad_backup'));
     if (!data || !data.studyStartTime) return;
     const elapsed = Date.now() - data.studyStartTime;
     if (elapsed > 300000) { clearBackup(); return; }
