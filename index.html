@@ -2,22 +2,22 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
-<title>🌳 脑力训练游戏 - 认知锻炼</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+<title>🧠 短期记忆自测 - 脑力训练游戏</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #fdf6f0;
-    --card: #fffaf5;
-    --text: #2d1f14;
-    --primary: #d97706;
-    --primary-hover: #b45309;
-    --success: #d97706;
+    --bg: #f5f3ef;
+    --card: #ffffff;
+    --text: #1a1a1a;
+    --primary: #16a34a;
+    --primary-hover: #15803d;
+    --success: #16a34a;
     --danger: #dc2626;
-    --muted: #8b7355;
-    --border: #e8d5c4;
-    --radius: 14px;
-    --shadow: 0 2px 16px rgba(180, 83, 9, 0.10);
+    --muted: #6b7280;
+    --border: #d1d5db;
+    --radius: 12px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
     --fs-base: 18px;
     --fs-lg: 20px;
     --fs-xl: 22px;
@@ -30,12 +30,87 @@
   body.high-contrast .object-card { background: #1a1a1a; border-color: #555; }
   body.high-contrast .result-detail { background: #1a1a1a; }
   body.high-contrast .suggestion-box { background: #1a1a1a; border-color: #555; color: #ccc; }
-  body.high-contrast .phase-badge { background: #222; color: #fbbf24; }
+  body.high-contrast .phase-badge { background: #222; color: #4ade80; }
   body.high-contrast #progress-bar-wrap { background: #222; }
   body.high-contrast .history-item { background: #1a1a1a; border-color: #333; }
   body.high-contrast .toggle-btn { background: #222; border-color: #555; color: #eee; }
-  body.high-contrast .option-btn.correct { background: #14532d !important; border-color: #22c55e !important; color: #bbf7d0 !important; }
-  body.high-contrast .option-btn.wrong { background: #450a0a !important; border-color: #ef4444 !important; color: #fecaca !important; }
+  body.high-contrast .diff-btn { background: #222; color: #eee; }
+  body.high-contrast .diff-btn:hover { border-color: #4ade80; background: #1a3a1a; }
+  body.high-contrast .diff-btn.selected { border-color: #4ade80; background: #0d2f0d; color: #4ade80; }
+  body.high-contrast .diff-btn .diff-sub { color: #aaa; }
+  body.high-contrast .study-ring-bg { stroke: #333; }
+  body.high-contrast .recall-confirm-box { background: #111; border: 1px solid #555; }
+  body.high-contrast .phase-notice-inner { background: #111; border: 1px solid #555; }
+
+  .diff-selector { display: flex; gap: 10px; justify-content: center; margin: 16px 0; }
+  .diff-btn { flex: 1; max-width: 120px; padding: 12px 8px; border: 2px solid var(--border); border-radius: 10px; background: var(--card); color: var(--text); font-size: 0.95rem; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.2s; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  .diff-btn:hover { border-color: var(--primary); background: #f0fdf4; }
+  .diff-btn.selected { border-color: var(--primary); background: #dcfce7; color: #166534; }
+  .diff-btn .diff-sub { display: block; font-size: 0.7rem; font-weight: 400; color: var(--muted); margin-top: 2px; }
+
+  .study-ring-wrap { position: relative; width: 100px; height: 100px; margin: 16px auto; }
+  .study-ring-svg { transform: rotate(-90deg); }
+  .study-ring-bg { fill: none; stroke: #e5e7eb; stroke-width: 6; }
+  .study-ring-bar { fill: none; stroke: var(--primary); stroke-width: 6; stroke-linecap: round; }
+  .study-ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.4rem; font-weight: 700; color: var(--primary); }
+
+  .recall-confirm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; animation: fadeIn 0.2s ease-out; padding: 20px; }
+  .recall-confirm-box { background: var(--card); border-radius: var(--radius); padding: 28px 24px; max-width: 300px; width: 100%; text-align: center; box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
+  .recall-confirm-box p { font-size: 1rem; color: var(--text); margin-bottom: 16px; }
+  .recall-confirm-actions { display: flex; gap: 10px; justify-content: center; }
+
+  .result-score.success { color: var(--success); }
+  .result-score.pass { color: var(--warning); }
+  .result-score.fail { color: var(--danger); }
+
+  .screen { animation: fadeIn 0.3s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .result-score { animation: scorePop 0.4s ease-out; }
+  @keyframes scorePop { 0% { transform: scale(0.5); opacity: 0; } 50% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+
+  .phase-notice { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; z-index: 200; animation: fadeIn 0.25s ease-out; padding: 24px; }
+  .phase-notice-inner { background: var(--card); border-radius: var(--radius); padding: 32px 28px; max-width: 360px; width: 100%; text-align: center; box-shadow: 0 8px 30px rgba(0,0,0,0.2); animation: scorePop 0.35s ease-out; }
+  .phase-notice-inner h2 { font-size: 1.4rem; margin-bottom: 8px; }
+  .phase-notice-inner p { font-size: 0.95rem; margin-bottom: 16px; }
+  .phase-notice-inner .phase-notice-detail { font-size: 0.85rem; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+
+  .chart-wrap { margin: 12px 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .chart-inner { display: flex; align-items: flex-end; gap: 4px; height: 100px; min-width: 100%; padding: 0 4px; }
+  .chart-bar { flex: 1; min-width: 12px; background: var(--primary); border-radius: 4px 4px 0 0; position: relative; transition: height 0.3s; cursor: pointer; }
+  .chart-bar:hover { opacity: 0.8; }
+  .chart-bar .chart-label { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: 0.5rem; white-space: nowrap; color: var(--muted); }
+  .chart-bar .chart-val { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); font-size: 0.55rem; font-weight: 600; color: var(--text); white-space: nowrap; }
+
+  .share-result { margin-top: 12px; }
+  .share-btn { background: #1da1f2; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 0.9rem; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: opacity 0.15s; }
+  .share-btn:active { opacity: 0.8; }
+  .share-btn.copy { background: var(--primary); }
+
+  .tts-indicator { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #d1d5db; margin-left: 6px; vertical-align: middle; transition: background 0.2s; }
+  .tts-indicator.on { background: var(--success); }
+  .tts-indicator.off { background: #d1d5db; }
+  .btn-gray { background: var(--muted); }
+  .btn-gray:hover { background: #4b5563; }
+  .btn, .option-btn, .toggle-btn, .diff-btn, .share-btn { touch-action: manipulation; }
+
+  @media (max-width: 420px) {
+    body { padding: 10px; }
+    .card { padding: 20px 16px; border-radius: 10px; }
+    .objects-grid { gap: 10px; }
+    .object-card { width: 100%; max-width: 160px; flex: 0 0 calc(50% - 6px); padding: 14px 10px; }
+    .object-card .emoji { font-size: 2.8rem; }
+    .object-card .label { font-size: 1rem; }
+    .btn { padding: 14px 32px; font-size: 1.05rem; }
+    .timer { font-size: 1.6rem; }
+    h1 { font-size: calc(var(--fs-xl, 1.6rem) * 0.85); }
+    .diff-btn { font-size: 0.85rem; padding: 10px 6px; }
+    .toggle-btn { padding: 6px 10px; font-size: 0.75rem; }
+  }
+  @media (max-width: 360px) {
+    .object-card { flex: 0 0 100%; max-width: 200px; }
+    .btn { padding: 12px 24px; font-size: 1rem; }
+    .option-btn { padding: 12px 16px; font-size: 0.95rem; }
+  }
 
   html { font-size: var(--fs-base); }
   body {
@@ -85,11 +160,6 @@
 
   .hidden { display: none !important; }
 
-  /* Confetti particles */
-  #confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; overflow: hidden; }
-  .confetti-piece { position: absolute; width: 10px; height: 10px; top: -10px; animation: confettiFall linear forwards; }
-  @keyframes confettiFall { 0% { opacity: 1; transform: translateY(0) rotate(0deg); } 100% { opacity: 0; transform: translateY(100vh) rotate(720deg); } }
-
   /* Toolbar */
   .toolbar {
     display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
@@ -124,7 +194,7 @@
   }
   .progress-seg:last-child { border-right: none; }
   .progress-seg.active { background: var(--primary); color: #fff; }
-  .progress-seg.done { background: #fde68a; color: #92400e; }
+  .progress-seg.done { background: #86efac; color: #166534; }
 
   /* Timer */
   .timer {
@@ -133,7 +203,7 @@
     color: var(--primary);
     margin: 16px 0;
   }
-  .timer.warning { color: #dc2626; animation: pulse 1s ease-in-out infinite; }
+  .timer.warning { color: var(--danger); animation: pulse 1s ease-in-out infinite; }
   @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
 
   /* Objects display */
@@ -142,7 +212,7 @@
   }
   .object-card {
     background: #fafafa; border: 2px solid var(--border); border-radius: 12px;
-    padding: 20px 16px; width: 150px; text-align: center; transition: transform 0.2s;
+    padding: 20px 16px; width: 150px; max-width: 45vw; text-align: center; transition: transform 0.2s;
   }
   .object-card .emoji { font-size: 3.6rem; display: block; margin-bottom: 8px; line-height: 1.2; }
   .object-card .label { font-size: 1.2rem; font-weight: 700; color: var(--text); }
@@ -156,15 +226,14 @@
   .question-text { font-size: 1.2rem; font-weight: 600; margin: 16px 0; line-height: 1.5; }
   .options { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
   .option-btn {
-    display: block; width: 100%; padding: 14px 20px; font-size: 1.05rem; cursor: pointer; transition: all 0.15s ease; text-align: left;
-    border-radius: 10px; border: 2px solid var(--border); background: var(--card); color: var(--text);
-    -webkit-tap-highlight-color: transparent;
+    background: #f3f4f6; border: 2px solid var(--border); border-radius: 10px;
+    padding: 14px 20px; font-size: 1.05rem; cursor: pointer; transition: all 0.12s; text-align: left;
   }
-  .option-btn:hover { background: #fef3c7; border-color: var(--primary); transform: translateX(4px); }
+  .option-btn:hover { background: #e5e7eb; border-color: var(--primary); }
   .option-btn:active { transform: scale(0.98); }
   .option-btn.selected { background: #dbeafe; border-color: var(--primary); }
-  .option-btn.correct { background: #bbf7d0 !important; border-color: #16a34a !important; color: #166534 !important; }
-  .option-btn.wrong { background: #fee2e2 !important; border-color: var(--danger) !important; color: #991b1b !important; }
+  .option-btn.correct { background: #dcfce7; border-color: var(--success); }
+  .option-btn.wrong { background: #fee2e2; border-color: var(--danger); }
   .feedback-text { font-size: 0.95rem; margin-top: 8px; font-weight: 600; }
   .feedback-text.correct { color: var(--success); }
   .feedback-text.wrong { color: var(--danger); }
@@ -176,14 +245,12 @@
   .recall-slot { display: flex; flex-direction: column; align-items: center; gap: 6px; }
   .recall-slot label { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
   .recall-slot input {
-    width: 130px; padding: 12px 14px; font-size: 1.15rem;
-    border: 2px solid var(--border); border-radius: 10px; text-align: center;
-    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
-    background: var(--card); color: var(--text);
+    width: 120px; padding: 10px 12px; font-size: 1.1rem;
+    border: 2px solid var(--border); border-radius: 8px; text-align: center;
+    outline: none; transition: border-color 0.12s;
   }
-  .recall-slot input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15); }
-  .recall-slot input.filled { border-color: #86efac; }
-  body.large-text .recall-slot input { width: 160px; }
+  .recall-slot input:focus { border-color: var(--primary); }
+  body.large-text .recall-slot input { width: 150px; }
 
   .step-info {
     font-size: 0.85rem; color: var(--muted); margin-top: 12px;
@@ -192,14 +259,14 @@
 
   /* Results */
   .result-score { font-size: 2.5rem; font-weight: 800; margin: 16px 0; }
-  .result-score.pass { color: #d97706; }
+  .result-score.pass { color: var(--success); }
   .result-score.fail { color: var(--danger); }
   .result-detail { text-align: left; margin: 12px 0; padding: 12px 16px; background: #f9fafb; border-radius: 8px; font-size: 0.95rem; }
   .result-detail li { list-style: none; padding: 4px 0; }
   .result-detail li::before { content: "• "; color: var(--muted); }
 
   .suggestion-box {
-    background: #fefce8; border: 1px solid #facc15; border-radius: 12px;
+    background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px;
     padding: 16px; margin: 16px 0; text-align: left; font-size: 0.95rem; color: #9a3412;
   }
   .suggestion-box strong { display: block; margin-bottom: 6px; }
@@ -225,118 +292,46 @@
   }
   #resume-banner .btn { margin: 6px 4px 0; font-size: 0.9rem; padding: 8px 20px; }
 
-  /* Feedback animations */
-  .feedback-text.correct { animation: popIn 0.35s ease; }
-  .feedback-text.wrong { animation: shake 0.4s ease; }
-  @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 50% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
-  @keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
-
-  /* Transition */
-  .page-fade-in { animation: fadeIn 0.25s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
   @media (max-width: 480px) {
-    body { font-size: 16px; padding: 10px; }
-    .card { padding: 20px 14px; border-radius: 10px; }
-    .object-card { width: 100px; padding: 12px 8px; }
-    .object-card .emoji { font-size: 2.6rem; }
-    .recall-slot input { width: 90px; padding: 10px 8px; font-size: 1rem; }
-    body.large-text .recall-slot input { width: 120px; }
+    body { font-size: 16px; }
+    .card { padding: 24px 18px; }
+    .object-card { width: 120px; padding: 14px 10px; }
+    .object-card .emoji { font-size: 3rem; }
+    .recall-slot input { width: 100px; }
+    body.large-text .recall-slot input { width: 130px; }
     .container { max-width: 100%; }
-    .progress-seg { font-size: 0.55rem; }
+    .progress-seg { font-size: 0.6rem; }
     .toolbar { gap: 4px; }
-    .toggle-btn { font-size: 0.75rem; padding: 3px 8px; }
-    .option-btn { padding: 12px 14px; font-size: 0.95rem; }
-    .recall-grid { gap: 8px; }
-    .btn { padding: 12px 36px; font-size: 1rem; }
-    .result-score { font-size: 2rem; }
-    .timer { font-size: 1.6rem; }
-    .question-text { font-size: 1.05rem; }
+    .toggle-btn { font-size: 0.8rem; padding: 4px 10px; }
   }
-  @media (max-width: 380px) {
-    .card { padding: 16px 10px; }
-    .object-card { width: 85px; }
-    .object-card .emoji { font-size: 2.2rem; }
-    .option-btn { padding: 10px 12px; font-size: 0.9rem; }
-    .recall-slot input { width: 80px; padding: 8px 6px; font-size: 0.95rem; }
-  }
-
-  /* 固定底部赞助栏 */
-  .sponsor-bar {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: 100% !important;
-    z-index: 99999 !important;
-    background: rgba(15,23,42,0.95) !important;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    padding: 8px 16px !important;
-    text-align: center !important;
-    border-top: 1px solid rgba(255,255,255,0.1) !important;
-    box-sizing: border-box !important;
-  }
-  .sponsor-bar-inner {
-    display: flex !important;
-    gap: 10px !important;
-    justify-content: center !important;
-    align-items: center !important;
-    flex-wrap: wrap !important;
-    max-width: 680px !important;
-    margin: 0 auto !important;
-  }
-  .sponsor-bar a {
-    display: inline-block !important;
-    padding: 6px 16px !important;
-    border-radius: 6px !important;
-    text-decoration: none !important;
-    font-size: 0.85rem !important;
-    font-weight: 500 !important;
-  }
-  .sponsor-gap { height: 54px !important; }
-
 </style>
 </head>
 <body>
 <div class="container">
 <div class="card" id="app">
 
-  <!-- Toolbar -->
-  <div class="toolbar">
-    <button class="toggle-btn" id="btn-large" onclick="toggleLarge()">🔠 大字</button>
-    <button class="toggle-btn" id="btn-contrast" onclick="toggleContrast()">◐ 高对比</button>
-    <button class="toggle-btn" id="btn-tts" onclick="toggleTTS()">🔊 有声</button>
-    <button class="toggle-btn" id="btn-music" onclick="toggleMusic()">🎵 音乐</button>
-  </div>
 
-  <!-- Progress bar -->
-  <div id="progress-bar-wrap" class="hidden">
-    <div class="progress-seg" data-phase="memorize">记忆</div>
-    <div class="progress-seg" data-phase="distract1">问答❶</div>
-    <div class="progress-seg" data-phase="recall1">回忆❶</div>
-    <div class="progress-seg" data-phase="distract2">问答❷</div>
-    <div class="progress-seg" data-phase="recall2">回忆❷</div>
-    <div class="progress-seg" data-phase="result">结果</div>
-  </div>
+
+
 
   <!-- Resume banner -->
   <div id="resume-banner" class="hidden"></div>
 
-  <!-- ====== WELCOME ====== -->
-  <div id="screen-welcome">
-    <h1>脑力训练游戏</h1>
-    <p>一个有趣的脑力锻炼小游戏，帮助了解自己的短期记忆状况。<br>测试大约需要 <strong>4 分钟</strong>。</p>
-    <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:16px;text-align:left;font-size:0.9rem;margin-bottom:20px;color:#9a3412;">
-      <strong>🌱 游戏玩法</strong><br>
-      ① 记住屏幕上的 <strong>3 个物品</strong> → ② 回答简单计算和常识问题<br>
-      → ③ <strong>30 秒后</strong>回忆物品 → ④ 继续回答问题<br>
-      → ⑤ <strong>3 分钟</strong>再次回忆 → ⑥ 查看结果<br>
-      <span style="font-size:0.85rem;color:#9a3412;margin-top:4px;display:block;">
-        ※ 每次测试物品随机更换，避免练习效应
-      </span>
+    <div id="screen-welcome">
+    <h1>🧠 短期记忆自测</h1>
+    <p style="margin-bottom:16px">记忆物品，完成干扰题，<br>然后在不同时间点回忆物品。</p>
+    <div style="margin:4px 0 16px;font-size:0.85rem;color:var(--muted);background:#f3f4f6;border-radius:8px;padding:10px 14px;text-align:left;line-height:1.7">
+      <strong>测试流程：</strong><br>
+      ① 记忆物品（倒计时） → ② 答题干扰（约2.5分钟）<br>
+      ③ 立即回忆（30秒后） → ④ 延迟回忆（约2分钟后）
     </div>
-    <button class="btn" onclick="startTest()">开始测试</button>
+    <div style="font-size:0.9rem;font-weight:600;margin:4px 0 8px">选择难度：</div>
+    <div class="diff-selector">
+      <button class="diff-btn" data-diff="easy" onclick="selectDifficulty('easy')">😊 简单<span class="diff-sub">记忆2个物品</span></button>
+      <button class="diff-btn selected" data-diff="normal" onclick="selectDifficulty('normal')">🤔 中等<span class="diff-sub">记忆3个物品</span></button>
+      <button class="diff-btn" data-diff="hard" onclick="selectDifficulty('hard')">🧐 困难<span class="diff-sub">记忆4个物品</span></button>
+    </div>
+    <button class="btn" onclick="startTest()" style="margin-top:8px">开始测试 →</button>
 
     <!-- History -->
     <div class="history-section hidden" id="history-section">
@@ -347,96 +342,127 @@
     </div>
   </div>
 
-  <!-- ====== OBJECTS ====== -->
-  <div id="screen-objects" class="hidden">
-    <span class="phase-badge">🌱 记忆阶段</span>
-    <h2>请记住以下 3 个物品</h2>
-    <p>您有 <strong>12 秒</strong> 记住它们</p>
-    <div class="objects-grid" id="objects-grid"></div>
-    <div class="timer" id="objects-timer">15</div>
-    <div class="step-info" id="objects-status">物品将在倒计时结束后自动隐藏</div>
-  </div>
-
-  <!-- ====== QUESTION ====== -->
-  <div id="screen-question" class="hidden">
-    <span class="phase-badge" id="question-phase">🌿 计算 & 问答</span>
-    <div class="timer" id="question-timer">--</div>
-    <div class="question-text" id="question-text"></div>
-    <div id="qa-counter" style="font-size:0.8rem;color:var(--muted);margin-bottom:4px;"></div>
-    <div class="options" id="question-options"></div>
-    <div class="feedback-text hidden" id="question-feedback"></div>
-    <button class="btn hidden" id="question-next" onclick="nextQuestion()">继续</button>
-    <div class="step-info" id="question-status"></div>
-  </div>
-
-  <!-- ====== RECALL 1 ====== -->
-  <div id="screen-recall1" class="hidden">
-    <span class="phase-badge">🌳 第一次回忆</span>
-    <h2>请回忆刚才看到的 3 个物品</h2>
-    <p>在每个框中输入您记住的物品名称（顺序不限）</p>
-    <div class="recall-grid">
-      <div class="recall-slot"><label>物品 ①</label><input type="text" id="recall1-1" placeholder="输入名称" autocomplete="off" inputmode="text" oninput="toggleFilled(this)" enterkeyhint="next" onkeydown="handleRecallKey(event, 'recall1')"></div>
-      <div class="recall-slot"><label>物品 ②</label><input type="text" id="recall1-2" placeholder="输入名称" autocomplete="off" inputmode="text" oninput="toggleFilled(this)" enterkeyhint="next" onkeydown="handleRecallKey(event, 'recall1')"></div>
-      <div class="recall-slot"><label>物品 ③</label><input type="text" id="recall1-3" placeholder="输入名称" autocomplete="off" inputmode="text" oninput="toggleFilled(this)" enterkeyhint="done" onkeydown="handleRecallKey(event, 'recall1')"></div>
-    </div>
-    <button class="btn" onclick="submitRecall1()">提交答案</button>
-    <div class="feedback-text hidden" id="recall1-feedback"></div>
-  </div>
-
-  <!-- ====== RECALL 2 ====== -->
-  <div id="screen-recall2" class="hidden">
-    <span class="phase-badge">🌳 第二次回忆</span>
-    <h2>请再次回忆刚才看到的 3 个物品</h2>
-    <p>在每个框中输入您记住的物品名称（顺序不限）</p>
-    <div class="recall-grid">
-      <div class="recall-slot"><label>物品 ①</label><input type="text" id="recall2-1" placeholder="输入名称" autocomplete="off" inputmode="text" oninput="toggleFilled(this)" enterkeyhint="next" onkeydown="handleRecallKey(event, 'recall2')"></div>
-      <div class="recall-slot"><label>物品 ②</label><input type="text" id="recall2-2" placeholder="输入名称" autocomplete="off" inputmode="text" oninput="toggleFilled(this)" enterkeyhint="next" onkeydown="handleRecallKey(event, 'recall2')"></div>
-      <div class="recall-slot"><label>物品 ③</label><input type="text" id="recall2-3" placeholder="输入名称" autocomplete="off" inputmode="text" oninput="toggleFilled(this)" enterkeyhint="done" onkeydown="handleRecallKey(event, 'recall2')"></div>
-    </div>
-    <button class="btn" onclick="submitRecall2()">提交答案</button>
-    <div class="feedback-text hidden" id="recall2-feedback"></div>
-  </div>
-
-  <!-- ====== RESULTS ====== -->
-  <div id="screen-results" class="hidden">
-    <span class="phase-badge" id="result-badge">🌳 测试结果</span>
-    <h2>测试完成</h2>
-    <div class="result-score" id="result-score">--</div>
-    <p id="result-summary"></p>
-    <div id="score-breakdown" class="hidden" style="margin: 16px 0; text-align: left;">
-      <div style="font-size:0.85rem;font-weight:600;color:var(--muted);margin-bottom:8px;">各项得分</div>
-      <div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:0.85rem;">
-        <span style="width:80px;flex-shrink:0;">30秒回忆</span>
-        <div style="flex:1;height:14px;background:#e5e7eb;border-radius:7px;overflow:hidden;">
-          <div id="bar-r1" style="height:100%;width:0%;background:var(--primary);border-radius:7px;transition:width 0.6s ease;"></div>
-        </div>
-        <span id="label-r1" style="width:30px;text-align:right;font-weight:600;">0</span>
+  <div id="screen-study" class="screen hidden">
+      <div class="toolbar">
+        <button class="toggle-btn" id="btn-large" onclick="toggleLarge()">🔤 大字</button>
+        <button class="toggle-btn" id="btn-contrast" onclick="toggleContrast()">👁 高对比</button>
+        <button class="toggle-btn" id="btn-tts" onclick="toggleTTS()">🔊 语音 <span class="tts-indicator" id="tts-indicator"></span></button>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:0.85rem;">
-        <span style="width:80px;flex-shrink:0;">3:30回忆</span>
-        <div style="flex:1;height:14px;background:#e5e7eb;border-radius:7px;overflow:hidden;">
-          <div id="bar-r2" style="height:100%;width:0%;background:#d97706;border-radius:7px;transition:width 0.6s ease;"></div>
-        </div>
-        <span id="label-r2" style="width:30px;text-align:right;font-weight:600;">0</span>
+      <div id="progress-bar-wrap" class="hidden">
+        <div class="progress-seg">学习</div>
+        <div class="progress-seg">干扰</div>
+        <div class="progress-seg">回忆</div>
+        <div class="progress-seg">延迟</div>
+        <div class="progress-seg">结果</div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:0.85rem;">
-        <span style="width:80px;flex-shrink:0;">问答正确率</span>
-        <div style="flex:1;height:14px;background:#e5e7eb;border-radius:7px;overflow:hidden;">
-          <div id="bar-qa" style="height:100%;width:0%;background:#6366f1;border-radius:7px;transition:width 0.6s ease;"></div>
-        </div>
-        <span id="label-qa" style="width:50px;text-align:right;font-weight:600;">0%</span>
+      <h2 style="color:var(--muted);font-size:1rem;font-weight:400;margin-bottom:4px">📖 请记忆以下物品</h2>
+      <p>倒计时结束后将进入答题环节</p>
+      <div class="study-ring-wrap">
+        <svg class="study-ring-svg" width="100" height="100" viewBox="0 0 100 100">
+          <circle class="study-ring-bg" cx="50" cy="50" r="42"/>
+          <circle class="study-ring-bar" id="study-ring-bar" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="0"/>
+        </svg>
+        <div class="study-ring-text" id="study-timer">30</div>
       </div>
+      <div class="objects-grid" id="study-objects"></div>
     </div>
-    <div class="suggestion-box hidden" id="suggestion-box">
-      <strong>💌 亲爱的朋友</strong>
-      <span id="suggestion-text"></span>
+
+  <div id="screen-distract" class="screen hidden">
+      <div class="toolbar">
+        <button class="toggle-btn" id="btn-large2" onclick="toggleLarge()">🔤 大字</button>
+        <button class="toggle-btn" id="btn-contrast2" onclick="toggleContrast()">👁 高对比</button>
+        <button class="toggle-btn" id="btn-tts2" onclick="toggleTTS()">🔊 语音 <span class="tts-indicator" id="tts-indicator2"></span></button>
+      </div>
+      <div id="progress-bar-wrap2" class="hidden">
+        <div class="progress-seg done">学习</div>
+        <div class="progress-seg active">干扰</div>
+        <div class="progress-seg">回忆</div>
+        <div class="progress-seg">延迟</div>
+        <div class="progress-seg">结果</div>
+      </div>
+      <div class="step-info">
+        <span class="phase-badge">🧠 干扰题</span>
+        <span style="font-size:0.85rem;color:var(--muted)">边答题边等待回忆阶段</span>
+      </div>
+      <div class="timer" id="distract-timer"></div>
+      <div id="question-area"></div>
     </div>
-    <button class="btn" onclick="resetTest()" style="margin-top:12px;">重新测试</button>
-  </div>
+
+  <div id="screen-recall1" class="screen hidden">
+      <div class="toolbar">
+        <button class="toggle-btn" id="btn-large3" onclick="toggleLarge()">🔤 大字</button>
+        <button class="toggle-btn" id="btn-contrast3" onclick="toggleContrast()">👁 高对比</button>
+        <button class="toggle-btn" id="btn-tts3" onclick="toggleTTS()">🔊 语音 <span class="tts-indicator" id="tts-indicator3"></span></button>
+      </div>
+      <div id="progress-bar-wrap3" class="hidden">
+        <div class="progress-seg done">学习</div>
+        <div class="progress-seg done">干扰</div>
+        <div class="progress-seg active">回忆</div>
+        <div class="progress-seg">延迟</div>
+        <div class="progress-seg">结果</div>
+      </div>
+      <div class="step-info">
+        <span class="phase-badge">📝 立即回忆</span>
+        <span style="font-size:0.85rem;color:var(--muted)">请选出刚才记忆的物品</span>
+      </div>
+      <div class="recall-hint" id="recall-hint1"></div>
+      <div id="recall-targets1" class="recall-slots"></div>
+      <div id="recall-pool1" class="recall-pool"></div>
+      <button class="btn" id="recall1-submit" onclick="submitRecall1()" style="margin-top:16px">提交回忆 →</button>
+    </div>
+
+  <div id="screen-recall2" class="screen hidden">
+      <div class="toolbar">
+        <button class="toggle-btn" id="btn-large4" onclick="toggleLarge()">🔤 大字</button>
+        <button class="toggle-btn" id="btn-contrast4" onclick="toggleContrast()">👁 高对比</button>
+        <button class="toggle-btn" id="btn-tts4" onclick="toggleTTS()">🔊 语音 <span class="tts-indicator" id="tts-indicator4"></span></button>
+      </div>
+      <div id="progress-bar-wrap4" class="hidden">
+        <div class="progress-seg done">学习</div>
+        <div class="progress-seg done">干扰</div>
+        <div class="progress-seg done">回忆</div>
+        <div class="progress-seg active">延迟</div>
+        <div class="progress-seg">结果</div>
+      </div>
+      <div class="step-info">
+        <span class="phase-badge">⏳ 延迟回忆</span>
+        <span style="font-size:0.85rem;color:var(--muted)">再请选出刚才记忆的物品</span>
+      </div>
+      <div class="recall-hint" id="recall-hint2"></div>
+      <div id="recall-targets2" class="recall-slots"></div>
+      <div id="recall-pool2" class="recall-pool"></div>
+      <button class="btn" id="recall2-submit" onclick="submitRecall2()" style="margin-top:16px">提交回忆 →</button>
+    </div>
+
+  <div id="screen-result" class="screen hidden">
+      <div class="toolbar">
+        <button class="toggle-btn" id="btn-large5" onclick="toggleLarge()">🔤 大字</button>
+        <button class="toggle-btn" id="btn-contrast5" onclick="toggleContrast()">👁 高对比</button>
+        <button class="toggle-btn" id="btn-tts5" onclick="toggleTTS()">🔊 语音 <span class="tts-indicator" id="tts-indicator5"></span></button>
+      </div>
+      <div id="progress-bar-wrap5" class="hidden">
+        <div class="progress-seg done">学习</div>
+        <div class="progress-seg done">干扰</div>
+        <div class="progress-seg done">回忆</div>
+        <div class="progress-seg done">延迟</div>
+        <div class="progress-seg active">结果</div>
+      </div>
+      <div id="result-badge" style="margin-bottom:4px"></div>
+      <div id="result-score" class="result-score">0</div>
+      <p style="color:var(--muted);font-size:0.9rem">分</p>
+      <div id="result-summary" class="result-detail"></div>
+      <div id="result-suggestion" class="suggestion-box hidden">
+        <strong>💡 建议</strong><br>
+        <span id="suggestion-text"></span>
+      </div>
+      <div class="share-result">
+        <button class="share-btn copy" onclick="shareResult()">📤 分享结果</button>
+      </div>
+      <button class="btn" onclick="resetTest()" style="margin-top:20px">重新测试</button>
+    </div>
 
 </div>
 </div>
-<div id="confetti-container"></div>
 
 <script>
 // ===================================================================
@@ -451,323 +477,169 @@ const OBJECT_POOL = [
   { emoji: '🧸', name: '小熊' }, { emoji: '🖼️', name: '画框' },
   { emoji: '🧴', name: '瓶子' }, { emoji: '🧩', name: '拼图' },
   { emoji: '🪑', name: '椅子' }, { emoji: '🧵', name: '针线' },
+  { emoji: '🎒', name: '背包' }, { emoji: '🧢', name: '帽子' },
+  { emoji: '🥄', name: '勺子' }, { emoji: '🔔', name: '铃铛' },
+  { emoji: '🧦', name: '袜子' }, { emoji: '🎨', name: '调色板' },
+  { emoji: '📷', name: '相机' }, { emoji: '⏰', name: '闹钟' },
 ];
-let currentObjects = []; // selected for this test
+let currentObjects = [];
+let selectedDifficulty = 2;
 
-// Questions — season replaced with month/week questions
 const QUESTIONS = [
-  // ===== 简单计算（15题） =====
   { q: '25 + 17 = ?', opts: ['38', '42', '43', '32'], ans: 1 },
   { q: '64 - 29 = ?', opts: ['45', '33', '35', '37'], ans: 2 },
-  { q: '7 × 8 = ?', opts: ['48', '56', '64', '54'], ans: 1 },
+  { q: '7 x 8 = ?', opts: ['48', '56', '64', '54'], ans: 1 },
   { q: '13 + 29 = ?', opts: ['38', '42', '43', '41'], ans: 1 },
   { q: '81 - 37 = ?', opts: ['44', '46', '54', '43'], ans: 0 },
-  { q: '6 × 9 = ?', opts: ['45', '54', '63', '56'], ans: 1 },
+  { q: '6 x 9 = ?', opts: ['45', '54', '63', '56'], ans: 1 },
   { q: '15 + 38 = ?', opts: ['53', '52', '55', '43'], ans: 0 },
   { q: '73 - 48 = ?', opts: ['25', '35', '23', '27'], ans: 0 },
   { q: '36 + 47 = ?', opts: ['73', '83', '82', '93'], ans: 1 },
   { q: '55 - 18 = ?', opts: ['47', '37', '38', '27'], ans: 1 },
-  { q: '8 × 6 = ?', opts: ['46', '48', '54', '42'], ans: 1 },
-  { q: '5 × 12 = ?', opts: ['50', '60', '72', '55'], ans: 1 },
-  { q: '9 × 7 = ?', opts: ['56', '63', '72', '49'], ans: 1 },
-  { q: '48 + 36 = ?', opts: ['74', '84', '82', '94'], ans: 1 },
-  { q: '100 - 43 = ?', opts: ['67', '57', '53', '47'], ans: 1 },
-  // ===== 生活常识（15题） =====
+  { q: '8 x 6 = ?', opts: ['46', '48', '54', '42'], ans: 1 },
+  { q: '5 x 12 = ?', opts: ['50', '60', '72', '55'], ans: 1 },
+  { q: '14 + 28 = ?', opts: ['42', '52', '32', '44'], ans: 0 },
+  { q: '90 - 46 = ?', opts: ['54', '44', '46', '43'], ans: 1 },
+  { q: '7 x 9 = ?', opts: ['56', '63', '72', '54'], ans: 1 },
   { q: '我们通常用什么来切菜？', opts: ['铅笔', '菜刀', '梳子', '毛巾'], ans: 1 },
   { q: '下雨天出门应该带什么？', opts: ['扇子', '帽子', '雨伞', '墨镜'], ans: 2 },
   { q: '生病了应该去看什么？', opts: ['老师', '警察', '医生', '司机'], ans: 2 },
   { q: '煮面条之前应该先干什么？', opts: ['切菜', '烧水', '洗米', '切肉'], ans: 1 },
-  { q: '睡觉前应该做什么？', opts: ['吃饭', '刷牙', '跑步', '唱歌'], ans: 1 },
-  { q: '我们用什么写信？', opts: ['铲子', '笔', '筷子', '剪刀'], ans: 1 },
-  { q: '坐公共汽车需要什么？', opts: ['车票', '门票', '船票', '饭票'], ans: 0 },
-  { q: '衣服晒干是因为什么？', opts: ['水分蒸发', '风吹', '太阳晒', '以上都是'], ans: 0 },
-  { q: '烧开水时水达到多少度会沸腾？', opts: ['50度', '80度', '100度', '120度'], ans: 2 },
-  { q: '一天中早餐应该在什么时间吃？', opts: ['中午', '早上', '晚上', '深夜'], ans: 1 },
-  { q: '洗衣服时用什么来去除污渍？', opts: ['洗洁精', '洗衣粉', '牙膏', '酱油'], ans: 1 },
-  { q: '切菜时如果不小心切到手，应该怎么做？', opts: ['继续切', '用水冲一下', '止血包扎', '贴上透明胶'], ans: 2 },
-  { q: '手机没电了应该怎么做？', opts: ['扔掉', '晒太阳', '充电', '用水泡'], ans: 2 },
-  { q: '以下哪种食物是早餐常见的？', opts: ['米饭', '面条', '包子', '火锅'], ans: 2 },
-  { q: '买水果时一般用什么称重量？', opts: ['尺子', '秤', '量杯', '温度计'], ans: 1 },
-  // ===== 自然与科学（15题） =====
-  { q: '什么动物会"汪汪"叫？', opts: ['猫', '狗', '鸡', '牛'], ans: 1 },
-  { q: '黄色加蓝色混合成什么颜色？', opts: ['红色', '绿色', '紫色', '橙色'], ans: 1 },
-  { q: '什么季节叶子会变黄掉落？', opts: ['春天', '夏天', '秋天', '冬天'], ans: 2 },
-  { q: '以下哪种动物生活在南极？', opts: ['老虎', '企鹅', '大象', '长颈鹿'], ans: 1 },
-  { q: '以下哪种动物会冬眠？', opts: ['狗', '猫', '熊', '鸡'], ans: 2 },
-  { q: '蜜蜂采花蜜后会做成什么？', opts: ['蜡烛', '蜂蜜', '糖', '面粉'], ans: 1 },
-  { q: '人呼吸时吸入的主要是什么气体？', opts: ['氮气', '二氧化碳', '氧气', '氢气'], ans: 2 },
-  { q: '以下哪种是爬行动物？', opts: ['乌龟', '青蛙', '金鱼', '麻雀'], ans: 0 },
-  { q: '海水是什么味道？', opts: ['甜味', '酸味', '咸味', '苦味'], ans: 2 },
-  { q: '太阳是什么？', opts: ['行星', '卫星', '恒星', '彗星'], ans: 2 },
-  { q: '以下哪个动物能在水里和陆地上生活？', opts: ['猫', '青蛙', '鸡', '兔子'], ans: 1 },
-  { q: '月亮的形状为什么会变化？', opts: ['被吃掉', '反射阳光角度变', '被云挡住', '自己变形'], ans: 1 },
-  { q: '一年有四个季节，以下哪个不是？', opts: ['春天', '夏天', '雨季', '冬天'], ans: 2 },
-  { q: '以下哪种水果是长在树上的？', opts: ['西瓜', '草莓', '苹果', '花生'], ans: 2 },
-  { q: '哪种动物被称为"森林之王"？', opts: ['大象', '老虎', '猴子', '长颈鹿'], ans: 1 },
-  // ===== 历史与文化（10题） =====
-  { q: '中国的首都是哪个城市？', opts: ['上海', '广州', '北京', '深圳'], ans: 2 },
-  { q: '中国的国旗是什么颜色？', opts: ['蓝色', '红色', '绿色', '黄色'], ans: 1 },
-  { q: '以下哪个是中国的传统节日？', opts: ['圣诞节', '中秋节', '复活节', '万圣节'], ans: 1 },
-  { q: '农历新年是哪一天？', opts: ['1月1日', '正月初一', '12月25日', '元宵节'], ans: 1 },
-  { q: '中国的母亲河是哪条河？', opts: ['长江', '黄河', '珠江', '淮河'], ans: 1 },
-  { q: '熊猫主要生活在中国的哪个地区？', opts: ['新疆', '四川', '海南', '黑龙江'], ans: 1 },
-  { q: '以下哪种食物含有最多维生素C？', opts: ['米饭', '面条', '橙子', '鸡蛋'], ans: 2 },
-  { q: '以下哪个是中国古代四大发明之一？', opts: ['电灯', '造纸术', '电话', '自行车'], ans: 1 },
-  { q: '中国最长的河流是哪条？', opts: ['黄河', '珠江', '长江', '淮河'], ans: 2 },
-  { q: '以下哪种动物是中国十二生肖之一？', opts: ['猫', '大象', '龙', '狮子'], ans: 2 },
-  // ===== 月份与时间（8题） =====
-  { q: '一年有多少个月份？', opts: ['10', '11', '12', '13'], ans: 2 },
-  { q: '一个月大约有多少天？', opts: ['20天', '25天', '30天', '35天'], ans: 2 },
-  { q: '一周有几天？', opts: ['5天', '6天', '7天', '8天'], ans: 2 },
-  { q: '一年中哪个月份只有28或29天？', opts: ['1月', '2月', '6月', '12月'], ans: 1 },
-  { q: '一天有多少个小时？', opts: ['12', '24', '36', '48'], ans: 1 },
-  { q: '一周中哪一天通常被认为是周末的开始？', opts: ['星期四', '星期五', '星期六', '星期日'], ans: 2 },
-  { q: '半小时等于多少分钟？', opts: ['20分钟', '25分钟', '30分钟', '60分钟'], ans: 2 },
-  { q: '一年有多少天？', opts: ['360天', '365天', '370天', '400天'], ans: 1 },
-  // ===== 会话社交（32题） =====
-  { q: '如果有人对你说"谢谢"，你应该回答什么？', opts: ['不用谢', '好的', '再见', '没关系'], ans: 0 },
-  { q: '想向别人借东西时，应该先说什么？', opts: ['给我', '请问', '你好', '喂'], ans: 1 },
-  { q: '见到认识的人时，通常说什么？', opts: ['再见', '你好', '好吃', '晚安'], ans: 1 },
-  { q: '去别人家做客，进门时应该做什么？', opts: ['脱鞋', '直接坐下', '大声喊叫', '翻东西'], ans: 0 },
-  { q: '别人说话时，我们应该怎么做？', opts: ['打断他', '认真听', '玩手机', '走开'], ans: 1 },
-  { q: '在公交车上看到老人站着，应该怎么做？', opts: ['让座', '假装没看见', '站起来离开', '关窗'], ans: 0 },
-  { q: '以下哪个是礼貌用语？', opts: ['闭嘴', '滚开', '请', '快点'], ans: 2 },
-  { q: '收到礼物时应该说什么？', opts: ['多少钱', '谢谢', '不要', '太差了'], ans: 1 },
-  { q: '想和人打招呼时，可以说什么？', opts: ['走开', '你好呀', '闭嘴', '不知道'], ans: 1 },
-  { q: '吃饭时应该用什么餐具？', opts: ['筷子或叉子', '梳子', '铅笔', '牙刷'], ans: 0 },
-  { q: '在图书馆应该怎么做？', opts: ['大声说话', '保持安静', '跑来跑去', '吃东西'], ans: 1 },
-  { q: '过马路时应该走哪里？', opts: ['随便走', '斑马线', '翻栏杆', '快跑'], ans: 1 },
-  { q: '和好朋友分开时说什么？', opts: ['你好', '再见', '早安', '晚安'], ans: 1 },
-  { q: '看到别人摔倒了应该怎么做？', opts: ['笑', '问要不要帮忙', '拍照', '走开'], ans: 1 },
-  { q: '排队的时候应该怎么做？', opts: ['插队', '按顺序排队', '推别人', '大喊'], ans: 1 },
-  { q: '早上起床后对家人说什么？', opts: ['早安', '晚安', '再见', '谢谢'], ans: 0 },
-  { q: '吃饭时想夹远处的菜应该怎么做？', opts: ['站起来够', '请别人帮忙', '用筷子去拨', '放弃不吃'], ans: 1 },
-  { q: '递东西给别人时应该怎么做？', opts: ['扔过去', '单手递', '双手递', '不管'], ans: 2 },
-  { q: '别人问你"你叫什么名字？"，回答什么？', opts: ['我叫小明', '你是谁', '不知道', '走开'], ans: 0 },
-  { q: '想加入别人的聊天时，怎么表示？', opts: ['直接插话', '等合适时机说', '大声喊', '打断别人'], ans: 1 },
-  { q: '踩到别人的脚，应该说什么？', opts: ['对不起', '活该', '没关系', '好痛'], ans: 0 },
-  { q: '早上起床后首先要做什么？', opts: ['吃午饭', '刷牙洗脸', '看电视', '玩手机'], ans: 1 },
-  { q: '以下哪种食物对牙齿最不好？', opts: ['牛奶', '糖', '米饭', '苹果'], ans: 1 },
-  { q: '下雨天过马路要注意什么？', opts: ['跑快点', '打雨伞看车', '闭着眼睛', '无视信号灯'], ans: 1 },
-  { q: '和朋友一起玩时应该怎么做？', opts: ['争抢', '分享', '打人', '哭闹'], ans: 1 },
-  { q: '想知道现在几点了应该看什么？', opts: ['温度计', '时钟', '指南针', '体重秤'], ans: 1 },
-  { q: '想要什么东西时，应该怎么表达？', opts: ['撒娇', '好好说出理由', '哭闹', '直接拿走'], ans: 1 },
-  { q: '别人帮助了你，你应该说什么？', opts: ['再见', '谢谢', '晚安', '你好'], ans: 1 },
-  { q: '晚上睡觉前应该对家人说什么？', opts: ['早安', '午安', '晚安', '再见'], ans: 2 },
-  { q: '在超市选完东西后去哪里付钱？', opts: ['门口', '收银台', '货架', '厕所'], ans: 1 },
-  { q: '如果你打碎了别人的东西，应该怎么做？', opts: ['逃跑', '承认并道歉', '藏起来', '怪别人'], ans: 1 },
-  { q: '在餐厅吃完饭后需要做什么？', opts: ['直接走', '付钱', '洗碗', '打包所有人'], ans: 1 },
-  // ===== 趣味趣味（12题） =====
-  { q: '哪种动物走路会"一摇一摆"？', opts: ['猫', '鸭子', '老虎', '兔子'], ans: 1 },
-  { q: '猫最喜欢的食物是什么？', opts: ['草', '鱼', '骨头', '米饭'], ans: 1 },
-  { q: '以下哪种东西会在天上飞？', opts: ['鱼', '飞机', '石头', '桌椅'], ans: 1 },
-  { q: '西瓜的外皮是什么颜色？', opts: ['红色', '黄色', '绿色', '蓝色'], ans: 2 },
-  { q: '以下哪种动物会"喵喵"叫？', opts: ['狗', '猫', '牛', '羊'], ans: 1 },
-  { q: '一天中太阳从哪个方向升起？', opts: ['西方', '南方', '东方', '北方'], ans: 2 },
-  { q: '以下哪种水果是黄色的？', opts: ['苹果', '香蕉', '葡萄', '蓝莓'], ans: 1 },
-  { q: '雪花的形状像什么？', opts: ['圆形', '六角形', '三角形', '方形'], ans: 1 },
-  { q: '青蛙小时候叫什么？', opts: ['小鱼', '蝌蚪', '虫子', '泥鳅'], ans: 1 },
-  { q: '雨后天上常常出现什么？', opts: ['月亮', '星星', '彩虹', '太阳'], ans: 2 },
-  { q: '树木通过什么吸收水分？', opts: ['叶子', '树枝', '树根', '树皮'], ans: 2 },
-  { q: '企鹅的身体是什么颜色的？', opts: ['全白', '黑白', '棕色', '灰色'], ans: 1 },
-];;;
+  { q: '一年有多少个月？', opts: ['10', '11', '12', '13'], ans: 2 },
+  { q: '一周有几天？', opts: ['5', '6', '7', '8'], ans: 2 },
+  { q: '太阳从哪个方向升起？', opts: ['西方', '南方', '北方', '东方'], ans: 3 },
+  { q: '春节通常在哪个季节？', opts: ['夏天', '冬天', '春天', '秋天'], ans: 2 },
+  { q: '水在多少度结冰？', opts: ['4度', '-1度', '0度', '10度'], ans: 2 },
+  { q: '人体有多少颗牙齿（成年人）？', opts: ['28', '30', '32', '34'], ans: 2 },
+  { q: '中国有多少个省级行政区？', opts: ['32', '33', '34', '35'], ans: 2 },
+  { q: '一公斤等于多少克？', opts: ['500', '100', '1000', '2000'], ans: 2 },
+  { q: '三角形有几个角？', opts: ['2', '3', '4', '5'], ans: 1 },
+  { q: '地球绕太阳转一圈需要多久？', opts: ['一个月', '半年', '一年', '两年'], ans: 2 },
+];
 
 // ===================================================================
 // STATE
 // ===================================================================
-let lastAnswerIdx = -1;
-
 let state = {
-  phase: 'welcome',
-  recall1Results: [],
-  recall2Results: [],
-  recall1Done: false,
-  recall2Done: false,
-  questionsAsked: 0,
-  totalQuestions: 0,
-  correctAnswers: 0,
-  questionTimerInterval: null,
-  objectsTimerInterval: null,
-  studyStartTime: null,
+  phase: 'welcome', recall1Results: [], recall2Results: [],
+  recall1Done: false, recall2Done: false,
+  questionsAsked: 0, totalQuestions: 0, correctAnswers: 0,
+  questionTimerInterval: null, objectsTimerInterval: null,
+  studyStartTime: null, distractStartTime: null,
+  currentDistractIndex: 0, distractQuestions: [],
 };
 
-// ===================================================================
-// PREFERENCES (localStorage)
-// ===================================================================
-let prefs = { largeText: false, highContrast: false, ttsEnabled: true, musicEnabled: false };
+let prefs = { largeText: false, highContrast: false, ttsEnabled: false };
 
+// ===================================================================
+// PREFERENCES
+// ===================================================================
 function loadPrefs() {
-  try {
-    const saved = JSON.parse(localStorage.getItem('ad_prefs'));
-    if (saved) Object.assign(prefs, saved);
-  } catch(e) {}
+  try { const d = JSON.parse(localStorage.getItem('brain_prefs')); if (d) prefs = d; } catch(e) {}
 }
 function savePrefs() {
-  try { localStorage.setItem('ad_prefs', JSON.stringify(prefs)); } catch(e) {}
+  try { localStorage.setItem('brain_prefs', JSON.stringify(prefs)); } catch(e) {}
 }
-
-// ===================================================================
-// TOOLBAR TOGGLES
-// ===================================================================
 function toggleLarge() {
   prefs.largeText = !prefs.largeText;
   document.body.classList.toggle('large-text', prefs.largeText);
   document.getElementById('btn-large').classList.toggle('active', prefs.largeText);
+  if (document.getElementById('btn-large2')) document.getElementById('btn-large2').classList.toggle('active', prefs.largeText);
+  if (document.getElementById('btn-large3')) document.getElementById('btn-large3').classList.toggle('active', prefs.largeText);
+  if (document.getElementById('btn-large4')) document.getElementById('btn-large4').classList.toggle('active', prefs.largeText);
+  if (document.getElementById('btn-large5')) document.getElementById('btn-large5').classList.toggle('active', prefs.largeText);
   savePrefs();
 }
 function toggleContrast() {
   prefs.highContrast = !prefs.highContrast;
+  ['btn-contrast','btn-contrast2','btn-contrast3','btn-contrast4','btn-contrast5'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('active', prefs.highContrast);
+  });
   document.body.classList.toggle('high-contrast', prefs.highContrast);
-  document.getElementById('btn-contrast').classList.toggle('active', prefs.highContrast);
   savePrefs();
 }
 function toggleTTS() {
   prefs.ttsEnabled = !prefs.ttsEnabled;
-  document.getElementById('btn-tts').classList.toggle('active', prefs.ttsEnabled);
-  document.getElementById('btn-tts').textContent = prefs.ttsEnabled ? '🔊 有声' : '🔇 静音';
-  document.getElementById('btn-music').textContent = prefs.musicEnabled ? '🎵 音乐' : '🎵 静音';
+  ['btn-tts','btn-tts2','btn-tts3','btn-tts4','btn-tts5'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('active', prefs.ttsEnabled);
+  });
+  updateTTSIndicator();
   savePrefs();
 }
-
-// ===================================================================
-// TEXT-TO-SPEECH
-// ===================================================================
+function updateTTSIndicator() {
+  document.querySelectorAll('.tts-indicator').forEach(el => {
+    el.className = 'tts-indicator ' + (prefs.ttsEnabled ? 'on' : 'off');
+  });
+}
 function speak(text) {
-  if (!prefs.ttsEnabled) return;
-  if (!('speechSynthesis' in window)) return;
+  if (!prefs.ttsEnabled || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'zh-CN';
-  u.rate = 0.82;
-  u.pitch = 1.05;
-  u.volume = 1;
-  // Try to find a natural Chinese voice
-  const voices = window.speechSynthesis.getVoices();
-  const zhVoice = voices.find(v => v.lang.startsWith('zh') && v.localService) 
-               || voices.find(v => v.lang.startsWith('zh'));
-  if (zhVoice) u.voice = zhVoice;
+  u.rate = 0.9;
+  u.onerror = function() { /* TTS not available */ };
   window.speechSynthesis.speak(u);
-  // Pre-load voices for next call
-  if (voices.length === 0) {
-    window.speechSynthesis.getVoices();
+}
+function playBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'sine'; o.frequency.value = 800;
+    g.gain.value = 0.15;
+    o.connect(g); g.connect(ctx.destination);
+    o.start(); o.stop(ctx.currentTime + 0.12);
+  } catch(e) {}
+}
+function vibrate(pattern) {
+  if (navigator.vibrate) navigator.vibrate(pattern || 15);
+}
+// ===================================================================
+// DIFFICULTY
+// ===================================================================
+function selectDifficulty(level) {
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelector('.diff-btn[data-diff="' + level + '"]').classList.add('selected');
+  if (level === 'easy') selectedDifficulty = 2;
+  else if (level === 'normal') selectedDifficulty = 3;
+  else selectedDifficulty = 4;
+  speak('已选择' + (level === 'easy' ? '简单' : level === 'normal' ? '中等' : '困难') + '模式');
+}
+
+// ===================================================================
+// PROGRESS
+// ===================================================================
+function showProgress(activePhase) {
+  const phases = ['学习','干扰','回忆','延迟','结果'];
+  for (let i = 0; i < 5; i++) {
+    for (let j = 1; j <= 5; j++) {
+      const wrap = document.getElementById('progress-bar-wrap' + (j > 1 ? j : ''));
+      if (!wrap) continue;
+      const seg = wrap.children[i];
+      if (!seg) continue;
+      seg.className = 'progress-seg';
+      const idx = phases.indexOf(activePhase);
+      if (i < idx) seg.classList.add('done');
+      else if (i === idx) seg.classList.add('active');
+    }
   }
 }
 
 // ===================================================================
-// AUDIO BEEP
-// ===================================================================
-function playBeep() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.frequency.value = 880;
-    osc.type = 'sine';
-    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
-    osc.start(); osc.stop(ctx.currentTime + 0.6);
-  } catch(e) { /* audio not available */ }
-}
-
-function playCorrectSound() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(523, ctx.currentTime);
-    osc.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
-    osc.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
-    gain.gain.setValueAtTime(0.25, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-    osc.start(); osc.stop(ctx.currentTime + 0.5);
-  } catch(e) {}
-}
-
-function playWrongSound() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(300, ctx.currentTime);
-    osc.frequency.setValueAtTime(200, ctx.currentTime + 0.15);
-    gain.gain.setValueAtTime(0.15, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-    osc.start(); osc.stop(ctx.currentTime + 0.4);
-  } catch(e) {}
-}
-
-function playCelebrationSound() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const notes = [523, 587, 659, 784, 880, 1047];
-    notes.forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.12);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.3);
-      osc.start(ctx.currentTime + i * 0.12);
-      osc.stop(ctx.currentTime + i * 0.12 + 0.3);
-    });
-  } catch(e) {}
-}
-
-function playFullScoreSound() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    // A cheerful fanfare
-    const notes = [523, 659, 784, 1047, 784, 1047, 1319];
-    notes.forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.15);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.15 + 0.4);
-      osc.start(ctx.currentTime + i * 0.15);
-      osc.stop(ctx.currentTime + i * 0.15 + 0.4);
-    });
-  } catch(e) {}
-}
-
-// ===================================================================
-// PROGRESS BAR
-// ===================================================================
-function showProgress(activePhase) {
-  const phases = ['memorize','distract1','recall1','distract2','recall2','result'];
-  const wrap = document.getElementById('progress-bar-wrap');
-  wrap.classList.remove('hidden');
-  wrap.querySelectorAll('.progress-seg').forEach(el => {
-    el.classList.remove('active','done');
-    const p = el.dataset.phase;
-    const idx = phases.indexOf(p);
-    const actIdx = phases.indexOf(activePhase);
-    if (idx < actIdx) el.classList.add('done');
-    else if (idx === actIdx) el.classList.add('active');
-  });
-}
-
-// ===================================================================
-// SESSION STORAGE BACKUP
+// BACKUP / RESUME
 // ===================================================================
 function backupState() {
   try {
     sessionStorage.setItem('ad_backup', JSON.stringify({
+      currentObjects: currentObjects.map(o => ({ emoji: o.emoji, name: o.name })),
       studyStartTime: state.studyStartTime,
       recall1Done: state.recall1Done,
       recall2Done: state.recall2Done,
       questionsAsked: state.questionsAsked,
       totalQuestions: state.totalQuestions,
       correctAnswers: state.correctAnswers,
-      currentObjects: currentObjects,
     }));
   } catch(e) {}
 }
@@ -776,92 +648,55 @@ function clearBackup() {
 }
 
 // ===================================================================
-// HISTORY (localStorage)
+// HISTORY
 // ===================================================================
 function loadHistory() {
-  try {
-    const h = JSON.parse(localStorage.getItem('ad_history') || '[]');
-    return h;
-  } catch(e) { return []; }
+  try { return JSON.parse(localStorage.getItem('brain_history')) || []; } catch(e) { return []; }
 }
 function saveToHistory(entry) {
   try {
-    const h = JSON.parse(localStorage.getItem('ad_history') || '[]');
-    h.unshift(entry);
-    if (h.length > 50) h.length = 50;
-    localStorage.setItem('ad_history', JSON.stringify(h));
+    const h = loadHistory();
+    h.push(entry);
+    if (h.length > 30) h.splice(0, h.length - 30);
+    localStorage.setItem('brain_history', JSON.stringify(h));
   } catch(e) {}
 }
 function renderHistory() {
+  const el = document.getElementById('history-list');
+  if (!el) return;
   const h = loadHistory();
-  const section = document.getElementById('history-section');
-  const list = document.getElementById('history-list');
-  if (h.length === 0) { section.classList.add('hidden'); return; }
-  section.classList.remove('hidden');
-  list.innerHTML = h.map(e => {
-    const cls = e.score >= 5 ? 'good' : e.score >= 3 ? 'mid' : 'bad';
+  if (h.length === 0) { el.innerHTML = '<p style="font-size:0.85rem;color:var(--muted)">暂无历史记录</p>'; return; }
+
+  // Chart
+  const recent = h.slice(-10);
+  const maxScore = Math.max(...recent.map(e => e.score));
+  let chartHtml = '<div class="chart-wrap"><div class="chart-inner">';
+  recent.forEach((e, i) => {
+    const pct = maxScore > 0 ? (e.score / maxScore) * 100 : 0;
     const d = new Date(e.date);
-    const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    return `<div class="history-item">
-      <span class="h-date">${ds}</span>
-      <span class="h-score ${cls}">${e.score}/7 分</span>
-      <span>回忆❶ ${e.recall1}/3 · 回忆❷ ${e.recall2}/3</span>
-    </div>`;
-  }).join('');
+    const label = (d.getMonth()+1) + '/' + d.getDate();
+    chartHtml += '<div class="chart-bar" style="height:' + Math.max(pct, 3) + '%" title="' + d.toLocaleDateString('zh-CN') + ' ' + e.score + '分">'
+      + '<span class="chart-val">' + e.score + '</span>'
+      + '<span class="chart-label">' + label + '</span>'
+      + '</div>';
+  });
+  chartHtml += '</div></div>';
+  el.innerHTML = chartHtml + '<div style="margin-top:8px;font-size:0.75rem;color:var(--muted)">最近' + recent.length + '次测试得分趋势</div>';
 }
 
 // ===================================================================
-// FUZZY MATCH
-// ===================================================================
-function isMatch(input, target) {
-  const a = input.trim().replace(/[\s\u3000]/g, '').toLowerCase();
-  const b = target.trim().toLowerCase();
-  return a.length > 0 && (b.includes(a) || a.includes(b));
-}
-
-// ===================================================================
-// RECALL TRIGGER (DRY — replaces inline duplicate in checkRecallTrigger + nextQuestion)
-// ===================================================================
-function checkAndTriggerRecall() {
-  if (!state.studyStartTime) return false;
-  const elapsed = Date.now() - state.studyStartTime;
-  if (!state.recall1Done && elapsed >= 30000) {
-    clearInterval(state.questionTimerInterval);
-    state.questionTimerInterval = null;
-    goToRecall1();
-    return true;
-  }
-  if (state.recall1Done && !state.recall2Done && elapsed >= 210000) {
-    clearInterval(state.questionTimerInterval);
-    state.questionTimerInterval = null;
-    goToRecall2();
-    return true;
-  }
-  return false;
-}
-
-// ===================================================================
-// SCREEN MANAGEMENT
+// HELPERS
 // ===================================================================
 function showScreen(id) {
-  ['screen-welcome','screen-objects','screen-question',
-   'screen-recall1','screen-recall2','screen-results'].forEach(s => {
-    document.getElementById(s).classList.add('hidden');
-    document.getElementById(s).classList.remove('page-fade-in');
-  });
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
   const el = document.getElementById(id);
-  el.classList.remove('hidden');
-  void el.offsetWidth;
-  el.classList.add('page-fade-in');
+  if (el) el.classList.remove('hidden');
 }
-
 function formatTime(seconds) {
-  if (seconds <= 0) return '0:00';
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
-  return `${m}:${s.toString().padStart(2, '0')}`;
+  return m > 0 ? m + '分' + s + '秒' : s + '秒';
 }
-
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -869,409 +704,573 @@ function shuffle(arr) {
   }
   return arr;
 }
+function isMatch(input, target) {
+  return input.emoji === target.emoji && input.name === target.name;
+}
 
 // ===================================================================
-// START TEST
+// PHASE TRANSITION NOTICE
+// ===================================================================
+function showPhaseNotice(title, message, detail, callback) {
+  const overlay = document.createElement('div');
+  overlay.className = 'phase-notice';
+  overlay.innerHTML = '<div class="phase-notice-inner">'
+    + '<h2>' + title + '</h2>'
+    + '<p>' + message + '</p>'
+    + '<div class="phase-notice-detail">' + detail + '</div>'
+    + '<button class="btn" onclick="this.closest(\'.phase-notice\').remove(); (' + callback + ')()">继续</button>'
+    + '</div>';
+  document.body.appendChild(overlay);
+  speak(title);
+}
+
+// ===================================================================
+// STUDY PHASE
 // ===================================================================
 function startTest() {
-  // Pick 3 random objects
-  currentObjects = shuffle([...OBJECT_POOL]).slice(0, 3);
-  state.studyStartTime = Date.now();
-  state.recall1Results = [];
-  state.recall2Results = [];
-  state.recall1Done = false;
-  state.recall2Done = false;
-  state.questionsAsked = 0;
-  state.totalQuestions = 0;
-  state.correctAnswers = 0;
+  // Reset state
   clearBackup();
-  backupState();
+  state = { phase:'study', recall1Results:[], recall2Results:[], recall1Done:false, recall2Done:false,
+    questionsAsked:0, totalQuestions:0, correctAnswers:0, questionTimerInterval:null, objectsTimerInterval:null,
+    studyStartTime:null, distractStartTime:null, currentDistractIndex:0, distractQuestions:[] };
 
-  showScreen('screen-objects');
-  showProgress('memorize');
+  // Select objects based on difficulty
+  const shuffled = shuffle([...OBJECT_POOL]);
+  currentObjects = shuffled.slice(0, selectedDifficulty);
 
-  // Render objects
-  const grid = document.getElementById('objects-grid');
-  grid.innerHTML = currentObjects.map(o =>
-    `<div class="object-card"><span class="emoji">${o.emoji}</span><span class="label">${o.name}</span></div>`
-  ).join('');
+  renderStudyPhase();
+}
 
-  speak('请记住以下三个物品。' + currentObjects.map(o => o.name).join('、'));
+function renderStudyPhase() {
+  showScreen('screen-study');
+  document.querySelectorAll('#progress-bar-wrap, #progress-bar-wrap2, #progress-bar-wrap3, #progress-bar-wrap4, #progress-bar-wrap5').forEach(el => el.classList.remove('hidden'));
+  showProgress('学习');
+  document.getElementById('btn-large').classList.toggle('active', prefs.largeText);
+  document.getElementById('btn-contrast').classList.toggle('active', prefs.highContrast);
+  document.getElementById('btn-tts').classList.toggle('active', prefs.ttsEnabled);
+  updateTTSIndicator();
 
-  document.getElementById('objects-timer').textContent = '15';
-  document.getElementById('objects-timer').classList.remove('warning');
-  document.getElementById('objects-status').textContent = '物品将在倒计时结束后自动隐藏';
+  const grid = document.getElementById('study-objects');
+  grid.innerHTML = currentObjects.map(o => '<div class="object-card">'
+    + '<span class="emoji">' + o.emoji + '</span>'
+    + '<span class="label">' + o.name + '</span></div>').join('');
 
-  let countdown = 12;
-  state.objectsTimerInterval = setInterval(() => {
-    countdown--;
-    document.getElementById('objects-timer').textContent = countdown;
-    if (countdown <= 5) document.getElementById('objects-timer').classList.add('warning');
-    if (countdown <= 0) {
+  // Ring animation
+  const ring = document.getElementById('study-ring-bar');
+  const circumference = 2 * Math.PI * 42;
+  const totalSec = 30;
+  let secLeft = totalSec;
+  const timerEl = document.getElementById('study-timer');
+  timerEl.textContent = secLeft;
+
+  speak('请记忆以下物品。记忆倒计时30秒。');
+  playBeep();
+
+  if (state.objectsTimerInterval) clearInterval(state.objectsTimerInterval);
+  state.objectsTimerInterval = setInterval(function() {
+    secLeft--;
+    timerEl.textContent = secLeft;
+    const offset = circumference * (1 - secLeft / totalSec);
+    ring.style.strokeDashoffset = offset;
+
+    if (secLeft <= 5) {
+      timerEl.style.color = '#dc2626';
+      if (secLeft <= 3) playBeep();
+    }
+
+    if (secLeft <= 0) {
       clearInterval(state.objectsTimerInterval);
       state.objectsTimerInterval = null;
-      startDistractionPhase();
+      state.studyStartTime = Date.now();
+      backupState();
+      checkAndTriggerRecall();
     }
   }, 1000);
+}
+
+// ===================================================================
+// TRANSITION / CHECK
+// ===================================================================
+function checkAndTriggerRecall() {
+  const elapsed = Date.now() - state.studyStartTime;
+  if (!state.recall1Done && elapsed >= 30000) {
+    // Transition to recall1
+    showPhaseNotice('📝 立即回忆', '请选出刚才记忆的物品', '现在测试您的即时记忆能力。\n从下方选择您记住的物品。', 'goToRecall1');
+    return;
+  }
+  if (state.recall1Done && !state.recall2Done && elapsed >= 210000) {
+    showPhaseNotice('⏳ 延迟回忆', '再次选出刚才记忆的物品', '延迟回忆测试：\n过了约2分钟，您还能记住哪些物品？', 'goToRecall2');
+    return;
+  }
+  // Otherwise do distraction
+  startDistractionPhase(false);
 }
 
 // ===================================================================
 // DISTRACTION PHASE
 // ===================================================================
 function startDistractionPhase(resuming) {
-  state.phase = 'distraction';
-  showScreen('screen-question');
-  document.getElementById('question-phase').textContent = '🌿 计算 & 问答';
-  if (!resuming) state.totalQuestions = 0;
-  showProgress('distract1');
-  updateDistractionTimer();
-  state.questionTimerInterval = setInterval(updateDistractionTimer, 1000);
-  presentQuestion();
+  state.phase = 'distract';
+  showScreen('screen-distract');
+  showProgress('干扰');
+  document.getElementById('btn-large2').classList.toggle('active', prefs.largeText);
+  document.getElementById('btn-contrast2').classList.toggle('active', prefs.highContrast);
+  document.getElementById('btn-tts2').classList.toggle('active', prefs.ttsEnabled);
+  updateTTSIndicator();
+
+  if (!resuming) {
+    state.distractQuestions = shuffle([...QUESTIONS]);
+    state.currentDistractIndex = 0;
+  }
+
+  const distractTimerEl = document.getElementById('distract-timer');
+
+  if (state.questionTimerInterval) clearInterval(state.questionTimerInterval);
+
+  function updateTimers() {
+    const elapsed = Date.now() - state.studyStartTime;
+    const recall1Due = !state.recall1Done && elapsed >= 30000;
+    const recall2Due = state.recall1Done && !state.recall2Done && elapsed >= 210000;
+
+    // Show elapsed time
+    const remaining1 = Math.max(0, 30 - Math.floor(elapsed / 1000));
+    if (!state.recall1Done) {
+      distractTimerEl.textContent = '回忆倒计时: ' + remaining1 + 's';
+      if (remaining1 <= 0) distractTimerEl.textContent = '🟢 回忆已就绪!';
+      if (remaining1 <= 5 && remaining1 > 0) distractTimerEl.classList.add('warning');
+      else distractTimerEl.classList.remove('warning');
+    } else if (!state.recall2Done) {
+      const elapsedQ = Math.floor((elapsed - 30000) / 1000);
+      const remaining2 = Math.max(0, 180 - elapsedQ);
+      distractTimerEl.textContent = '延迟回忆倒计时: ' + formatTime(remaining2);
+      if (remaining2 <= 0) distractTimerEl.textContent = '🟢 延迟回忆已就绪!';
+      if (remaining2 <= 10 && remaining2 > 0) distractTimerEl.classList.add('warning');
+      else distractTimerEl.classList.remove('warning');
+    } else {
+      distractTimerEl.textContent = '';
+    }
+
+    if (recall1Due) {
+      clearInterval(state.questionTimerInterval);
+      state.questionTimerInterval = null;
+      showPhaseNotice('📝 立即回忆', '请选出刚才记忆的物品', '现在测试您的即时记忆能力。\n从下方选择您记住的物品。', 'goToRecall1');
+      return;
+    }
+    if (recall2Due) {
+      clearInterval(state.questionTimerInterval);
+      state.questionTimerInterval = null;
+      showPhaseNotice('⏳ 延迟回忆', '再次选出刚才记忆的物品', '延迟回忆测试：\n过了约2分钟，您还能记住哪些物品？', 'goToRecall2');
+      return;
+    }
+  }
+
+  presentDistractQuestion();
+
+  state.questionTimerInterval = setInterval(updateTimers, 1000);
+  updateTimers();
 }
 
-function updateDistractionTimer() {
-  if (state.recall1Done && state.recall2Done) {
-    clearInterval(state.questionTimerInterval);
+function presentDistractQuestion() {
+  const area = document.getElementById('question-area');
+  const idx = state.currentDistractIndex;
+  const qs = state.distractQuestions;
+  if (idx >= qs.length) {
+    // Re-shuffle
+    state.distractQuestions = shuffle([...QUESTIONS]);
+    state.currentDistractIndex = 0;
+    presentDistractQuestion();
     return;
   }
-  if (checkAndTriggerRecall()) return;
-
-  const now = Date.now();
-  const elapsed = now - state.studyStartTime;
-
-  let timerText = '';
-  let statusText = '';
-
-  if (!state.recall1Done) {
-    const remaining = Math.max(0, Math.ceil((30000 - elapsed) / 1000));
-    timerText = formatTime(remaining);
-    statusText = `第一次回忆倒计时: ${formatTime(remaining)}`;
-    if (remaining <= 10) {
-      document.getElementById('question-timer').classList.add('warning');
-      statusText = `⚠ 即将进行第一次回忆... ${formatTime(remaining)}`;
-    }
-  } else {
-    const remaining = Math.max(0, Math.ceil((210000 - elapsed) / 1000));
-    timerText = formatTime(remaining);
-    statusText = `第二次回忆倒计时: ${formatTime(remaining)}`;
-    if (remaining <= 10) {
-      document.getElementById('question-timer').classList.add('warning');
-      statusText = `⚠ 即将进行第二次回忆... ${formatTime(remaining)}`;
-    }
-  }
-
-  document.getElementById('question-timer').textContent = timerText;
-  document.getElementById('question-status').textContent = statusText;
+  const q = qs[idx];
+  area.innerHTML = '<div style="text-align:left;max-width:500px;margin:0 auto">'
+    + '<div style="font-size:0.75rem;color:var(--muted);margin-bottom:8px">第 ' + (state.questionsAsked + 1) + ' 题 / 共 ' + (state.questionsAsked + 99) + ' 题</div>'
+    + '<div class="question-text">' + q.q + '</div>'
+    + '<div class="options" id="q-options">'
+    + q.opts.map((o, i) => '<button class="option-btn" onclick="answerDistractQuestion(' + i + ')">' + o + '</button>').join('')
+    + '</div>'
+    + '<div id="q-feedback" class="feedback-text" style="min-height:1.6em"></div></div>';
 }
 
-// ===================================================================
-// QUESTIONS
-// ===================================================================
-let currentQuestionData = null;
-
-function presentQuestion() {
-  questionAnswered = false;
-  
-  let idx;
-  let attempts = 0;
-  do {
-    idx = Math.floor(Math.random() * QUESTIONS.length);
-    attempts++;
-  } while (QUESTIONS[idx].ans === lastAnswerIdx && attempts < 20);
-  const q = QUESTIONS[idx];
-  currentQuestionData = q;
-  state.totalQuestions++;
-
-  document.getElementById('question-text').textContent = `第 ${state.totalQuestions} 题: ${q.q}`;
-  document.getElementById('qa-counter').textContent = `✅ ${state.correctAnswers} / ${state.questionsAsked} 正确`;
-  document.getElementById('question-timer').classList.remove('warning');
-
-  const optionsDiv = document.getElementById('question-options');
-  optionsDiv.innerHTML = '';
-  document.getElementById('question-feedback').classList.add('hidden');
-  document.getElementById('question-next').classList.add('hidden');
-
-  q.opts.forEach((opt, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'option-btn';
-    btn.textContent = opt;
-    btn.onclick = () => answerQuestion(i);
-    btn.style.pointerEvents = 'auto';
-    optionsDiv.appendChild(btn);
-  });
-
-  backupState();
-}
-
-let questionAnswered = false;
-
-function answerQuestion(selected) {
-  if (questionAnswered) return;
-  questionAnswered = true;
-  
-  const q = currentQuestionData;
-  const buttons = document.querySelectorAll('#question-options .option-btn');
-  if (buttons[selected]) buttons[selected].classList.add('selected');
-  
-  setTimeout(() => {
-    buttons.forEach((btn, i) => {
-      btn.onclick = null;
-      btn.style.pointerEvents = 'none';
-      btn.style.cursor = 'default';
-      if (i === q.ans) btn.classList.add('correct');
-      if (i === selected && selected !== q.ans) btn.classList.add('wrong');
-    });
-    // Play sound effect
-    if (selected === q.ans) {
-      playCorrectSound();
-    } else {
-      playWrongSound();
-    }
-  }, 150);
-
-  const fb = document.getElementById('question-feedback');
-  fb.classList.remove('hidden');
-  if (selected === q.ans) {
-    fb.textContent = '✅ 回答正确！';
-    fb.className = 'feedback-text correct';
-    state.correctAnswers++;
-  } else {
-    fb.textContent = `❌ 正确答案是: ${q.opts[q.ans]}`;
-    fb.className = 'feedback-text wrong';
-  }
-
+function answerDistractQuestion(selected) {
+  const q = state.distractQuestions[state.currentDistractIndex];
   state.questionsAsked++;
-  // Auto-advance after a short delay
-  setTimeout(() => {
-    if (checkAndTriggerRecall()) return;
-    presentQuestion();
-  }, 1200);
-}
+  state.totalQuestions++;
+  const correct = selected === q.ans;
+  if (correct) state.correctAnswers++;
 
-function nextQuestion() {
-  if (checkAndTriggerRecall()) return;
-  presentQuestion();
+  // Disable all buttons
+  document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+
+  const fb = document.getElementById('q-feedback');
+  if (correct) {
+    fb.textContent = '✅ 正确！';
+    fb.style.color = 'var(--success)';
+    vibrate(10);
+  } else {
+    fb.textContent = '❌ 错误。正确答案：' + q.opts[q.ans];
+    fb.style.color = 'var(--danger)';
+  }
+
+  state.currentDistractIndex++;
+  backupState();
+
+  // Next question after short delay
+  setTimeout(function() {
+    if (state.phase === 'distract') {
+      presentDistractQuestion();
+    }
+  }, 800);
 }
 
 // ===================================================================
 // RECALL 1
 // ===================================================================
 function goToRecall1() {
+  if (state.questionTimerInterval) { clearInterval(state.questionTimerInterval); state.questionTimerInterval = null; }
+  state.recall1Done = true;
   state.phase = 'recall1';
   showScreen('screen-recall1');
-  showProgress('recall1');
-  playBeep();
-  speak('请回忆刚才看到的三个物品，在输入框中填写名称。');
-  document.getElementById('recall1-feedback').classList.add('hidden');
-  ['recall1-1','recall1-2','recall1-3'].forEach(id => {
-    const el = document.getElementById(id);
-    el.value = '';
-    el.classList.remove('filled');
-  });
-  setTimeout(() => document.getElementById('recall1-1').focus(), 300);
+  showProgress('回忆');
+  document.getElementById('btn-large3').classList.toggle('active', prefs.largeText);
+  document.getElementById('btn-contrast3').classList.toggle('active', prefs.highContrast);
+  document.getElementById('btn-tts3').classList.toggle('active', prefs.ttsEnabled);
+  updateTTSIndicator();
   backupState();
+
+  const needed = selectedDifficulty;
+  const hint = document.getElementById('recall-hint1');
+  hint.textContent = '请从下方选择 ' + needed + ' 个物品（已选 0/' + needed + '）';
+  hint.style.fontSize = '0.9rem'; hint.style.color = 'var(--muted)'; hint.style.marginBottom = '10px';
+
+  // Build pool: correct objects + random distractors
+  const pool = shuffle([
+    ...currentObjects,
+    ...shuffle(OBJECT_POOL.filter(o => !currentObjects.some(c => c.name === o.name))).slice(0, Math.max(4, needed + 2))
+  ]);
+
+  const targets = document.getElementById('recall-targets1');
+  targets.innerHTML = '';
+  for (let i = 0; i < needed; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'recall-slot';
+    slot.id = 'recall1-slot-' + i;
+    slot.innerHTML = '<div style="font-size:1.8rem;opacity:0.25">⬜</div><div style="font-size:0.7rem;color:var(--muted)">物品 ' + (i+1) + '</div>';
+    slot.dataset.filled = 'false';
+    targets.appendChild(slot);
+  }
+
+  const poolEl = document.getElementById('recall-pool1');
+  poolEl.innerHTML = '<div class="recall-grid" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px">'
+    + pool.map(o => '<button class="option-btn recall-opt" data-emoji="' + o.emoji + '" data-name="' + o.name + '">'
+      + o.emoji + ' ' + o.name + '</button>').join('') + '</div>';
+
+  document.querySelectorAll('#recall-pool1 .recall-opt').forEach(btn => {
+    btn.onclick = function() {
+      const emoji = this.dataset.emoji;
+      const name = this.dataset.name;
+      if (this.disabled) return;
+      // Find first empty slot
+      for (let i = 0; i < needed; i++) {
+        const slot = document.getElementById('recall1-slot-' + i);
+        if (slot.dataset.filled === 'false') {
+          state.recall1Results[i] = { emoji: emoji, name: name };
+          slot.innerHTML = '<div style="font-size:1.8rem">' + emoji + '</div><div style="font-size:0.7rem;color:var(--text)">' + name + '</div>';
+          slot.dataset.filled = 'true';
+          this.disabled = true;
+          this.style.opacity = '0.4';
+          updateRecallHint1();
+          playBeep();
+          break;
+        }
+      }
+    };
+  });
+}
+
+function updateRecallHint1() {
+  const filled = document.querySelectorAll('#recall-targets1 .recall-slot[data-filled="true"]').length;
+  const needed = selectedDifficulty;
+  const hint = document.getElementById('recall-hint1');
+  hint.textContent = '请从下方选择 ' + needed + ' 个物品（已选 ' + filled + '/' + needed + '）';
+  if (filled === needed) hint.style.color = 'var(--success)';
+  else hint.style.color = 'var(--muted)';
 }
 
 function submitRecall1() {
-  if (state.recall1Done) return;
-  
-  const a1 = document.getElementById('recall1-1').value;
-  const a2 = document.getElementById('recall1-2').value;
-  const a3 = document.getElementById('recall1-3').value;
-  const answers = [a1, a2, a3].filter(a => a.trim() !== '').map(a => a.trim());
-
-  if (answers.length === 0) {
-    document.getElementById('recall1-feedback').textContent = '⚠ 请至少输入一个物品名称';
-    document.getElementById('recall1-feedback').className = 'feedback-text wrong';
-    document.getElementById('recall1-feedback').classList.remove('hidden');
+  const filled = document.querySelectorAll('#recall-targets1 .recall-slot[data-filled="true"]').length;
+  const needed = selectedDifficulty;
+  if (filled < needed) {
+    speak('请选够' + needed + '个物品');
     return;
   }
+  // Show confirm overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'recall-confirm-overlay';
+  overlay.innerHTML = '<div class="recall-confirm-box">'
+    + '<p>确认提交回忆结果？<br><span style="font-size:0.85rem;color:var(--muted)">提交后不能修改</span></p>'
+    + '<div class="recall-confirm-actions">'
+    + '<button class="btn btn-sm" onclick="doSubmitRecall1()">确认提交</button>'
+    + '<button class="btn btn-sm" style="background:#6b7280" onclick="this.closest(\'.recall-confirm-overlay\').remove()">再想想</button>'
+    + '</div></div>';
+  document.body.appendChild(overlay);
+}
 
-  let remaining = currentObjects.map(o => o.name);
-  const results = [];
-  for (const ans of answers) {
-    const idx = remaining.findIndex(name => isMatch(ans, name));
-    if (idx !== -1) { results.push(true); remaining.splice(idx, 1); }
-    else { results.push(false); }
+function doSubmitRecall1() {
+  document.querySelectorAll('.recall-confirm-overlay').forEach(e => e.remove());
+  // Grade results
+  let correct = 0;
+  for (let i = 0; i < selectedDifficulty; i++) {
+    const res = state.recall1Results[i];
+    if (res && currentObjects.some(c => c.name === res.name && c.emoji === res.emoji)) {
+      correct++;
+    }
   }
-  state.recall1Results = results;
-  while (state.recall1Results.length < 3) state.recall1Results.push(false);
-  state.recall1Done = true;
-  const submitBtn1 = document.querySelector('#screen-recall1 .btn');
-  if (submitBtn1) submitBtn1.disabled = true;
+  state.recall1Correct = correct;
 
-  const correctCount = results.filter(r => r).length;
-  const fb = document.getElementById('recall1-feedback');
-  fb.classList.remove('hidden');
-  if (correctCount === 3) {
-    fb.textContent = '✅ 全部正确！您记住了所有 3 个物品！';
-    fb.className = 'feedback-text correct';
-  } else if (correctCount >= 1) {
-    fb.textContent = `👍 您正确回忆了 ${correctCount}/3 个物品`;
-    fb.className = 'feedback-text correct';
-  } else {
-    fb.textContent = `😅 没能正确回忆物品。正确答案是: ${currentObjects.map(o => o.name).join('、')}`;
-    fb.className = 'feedback-text wrong';
+  const correctCount = correct;
+  const total = selectedDifficulty;
+  speak('即时回忆完成，正确' + correctCount + '个，共' + total + '个');
+
+  // Show inline result
+  const area = document.getElementById('recall1-submit');
+  const resultDiv = document.createElement('div');
+  resultDiv.style.cssText = 'margin:12px 0;padding:12px;background:#f0fdf4;border-radius:8px;font-size:0.9rem';
+  resultDiv.innerHTML = '✅ 即时回忆结果：正确 <strong>' + correctCount + '</strong>/' + total + ' 个'
+    + '<br><span style="font-size:0.8rem;color:var(--muted)">正确答案: ' + currentObjects.map(o => o.emoji + o.name).join('、') + '</span>';
+
+  // Check if we should go to distract2
+  if (!state.recall2Done) {
+    area.parentNode.insertBefore(resultDiv, area);
+    document.getElementById('recall1-submit').classList.add('hidden');
+    showPhaseNotice('⏳ 延迟回忆阶段', '请继续答题，约2分钟后会再次测试', '继续完成干扰题，等待延迟回忆倒计时结束。\n您可以在干扰阶段继续答题。', 'startDistractionPhase');
   }
-
-  setTimeout(() => {
-    showScreen('screen-question');
-    document.getElementById('question-phase').textContent = '🌿 继续问答';
-    showProgress('distract2');
-    updateDistractionTimer();
-    state.questionTimerInterval = setInterval(updateDistractionTimer, 1000);
-    const remaining = Math.max(0, Math.ceil(((state.studyStartTime + 210000) - Date.now()) / 1000));
-    document.getElementById('question-status').textContent = `第二次回忆倒计时: ${formatTime(remaining)}`;
-    presentQuestion();
-    backupState();
-  }, 2500);
 }
 
 // ===================================================================
 // RECALL 2
 // ===================================================================
 function goToRecall2() {
+  if (state.questionTimerInterval) { clearInterval(state.questionTimerInterval); state.questionTimerInterval = null; }
+  state.recall2Done = true;
   state.phase = 'recall2';
   showScreen('screen-recall2');
-  showProgress('recall2');
-  playBeep();
-  speak('请再次回忆刚才看到的三个物品。');
-  document.getElementById('recall2-feedback').classList.add('hidden');
-  ['recall2-1','recall2-2','recall2-3'].forEach(id => {
-    const el = document.getElementById(id);
-    el.value = '';
-    el.classList.remove('filled');
+  showProgress('延迟');
+  document.getElementById('btn-large4').classList.toggle('active', prefs.largeText);
+  document.getElementById('btn-contrast4').classList.toggle('active', prefs.highContrast);
+  document.getElementById('btn-tts4').classList.toggle('active', prefs.ttsEnabled);
+  updateTTSIndicator();
+  backupState();
+
+  const needed = selectedDifficulty;
+  const hint = document.getElementById('recall-hint2');
+  hint.textContent = '请从下方选择 ' + needed + ' 个物品（已选 0/' + needed + '）';
+  hint.style.fontSize = '0.9rem'; hint.style.color = 'var(--muted)'; hint.style.marginBottom = '10px';
+
+  // Build pool (different arrangement from recall1 for variety)
+  const pool = shuffle([
+    ...currentObjects,
+    ...shuffle(OBJECT_POOL.filter(o => !currentObjects.some(c => c.name === o.name))).slice(0, Math.max(4, needed + 2))
+  ]);
+
+  const targets = document.getElementById('recall-targets2');
+  targets.innerHTML = '';
+  for (let i = 0; i < needed; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'recall-slot';
+    slot.id = 'recall2-slot-' + i;
+    slot.innerHTML = '<div style="font-size:1.8rem;opacity:0.25">⬜</div><div style="font-size:0.7rem;color:var(--muted)">物品 ' + (i+1) + '</div>';
+    slot.dataset.filled = 'false';
+    targets.appendChild(slot);
+  }
+
+  const poolEl = document.getElementById('recall-pool2');
+  poolEl.innerHTML = '<div class="recall-grid" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px">'
+    + pool.map(o => '<button class="option-btn recall-opt" data-emoji="' + o.emoji + '" data-name="' + o.name + '">'
+      + o.emoji + ' ' + o.name + '</button>').join('') + '</div>';
+
+  document.querySelectorAll('#recall-pool2 .recall-opt').forEach(btn => {
+    btn.onclick = function() {
+      const emoji = this.dataset.emoji;
+      const name = this.dataset.name;
+      if (this.disabled) return;
+      for (let i = 0; i < needed; i++) {
+        const slot = document.getElementById('recall2-slot-' + i);
+        if (slot.dataset.filled === 'false') {
+          state.recall2Results[i] = { emoji: emoji, name: name };
+          slot.innerHTML = '<div style="font-size:1.8rem">' + emoji + '</div><div style="font-size:0.7rem;color:var(--text)">' + name + '</div>';
+          slot.dataset.filled = 'true';
+          this.disabled = true;
+          this.style.opacity = '0.4';
+          updateRecallHint2();
+          playBeep();
+          break;
+        }
+      }
+    };
   });
-  setTimeout(() => document.getElementById('recall2-1').focus(), 300);
+}
+
+function updateRecallHint2() {
+  const filled = document.querySelectorAll('#recall-targets2 .recall-slot[data-filled="true"]').length;
+  const needed = selectedDifficulty;
+  const hint = document.getElementById('recall-hint2');
+  hint.textContent = '请从下方选择 ' + needed + ' 个物品（已选 ' + filled + '/' + needed + '）';
+  if (filled === needed) hint.style.color = 'var(--success)';
+  else hint.style.color = 'var(--muted)';
 }
 
 function submitRecall2() {
-  if (state.recall2Done) return;
-  
-  const a1 = document.getElementById('recall2-1').value;
-  const a2 = document.getElementById('recall2-2').value;
-  const a3 = document.getElementById('recall2-3').value;
-  const answers = [a1, a2, a3].filter(a => a.trim() !== '').map(a => a.trim());
-
-  if (answers.length === 0) {
-    document.getElementById('recall2-feedback').textContent = '⚠ 请至少输入一个物品名称';
-    document.getElementById('recall2-feedback').className = 'feedback-text wrong';
-    document.getElementById('recall2-feedback').classList.remove('hidden');
+  const filled = document.querySelectorAll('#recall-targets2 .recall-slot[data-filled="true"]').length;
+  const needed = selectedDifficulty;
+  if (filled < needed) {
+    speak('请选够' + needed + '个物品');
     return;
   }
+  // Confirm
+  const overlay = document.createElement('div');
+  overlay.className = 'recall-confirm-overlay';
+  overlay.innerHTML = '<div class="recall-confirm-box">'
+    + '<p>确认提交延迟回忆结果？<br><span style="font-size:0.85rem;color:var(--muted)">提交后不能修改</span></p>'
+    + '<div class="recall-confirm-actions">'
+    + '<button class="btn btn-sm" onclick="doSubmitRecall2()">确认提交</button>'
+    + '<button class="btn btn-sm" style="background:#6b7280" onclick="this.closest(\'.recall-confirm-overlay\').remove()">再想想</button>'
+    + '</div></div>';
+  document.body.appendChild(overlay);
+}
 
-  let remaining = currentObjects.map(o => o.name);
-  const results = [];
-  for (const ans of answers) {
-    const idx = remaining.findIndex(name => isMatch(ans, name));
-    if (idx !== -1) { results.push(true); remaining.splice(idx, 1); }
-    else { results.push(false); }
+function doSubmitRecall2() {
+  document.querySelectorAll('.recall-confirm-overlay').forEach(e => e.remove());
+  let correct = 0;
+  for (let i = 0; i < selectedDifficulty; i++) {
+    const res = state.recall2Results[i];
+    if (res && currentObjects.some(c => c.name === res.name && c.emoji === res.emoji)) {
+      correct++;
+    }
   }
-  state.recall2Results = results;
-  while (state.recall2Results.length < 3) state.recall2Results.push(false);
-  state.recall2Done = true;
-  const submitBtn2 = document.querySelector('#screen-recall2 .btn');
-  if (submitBtn2) submitBtn2.disabled = true;
+  state.recall2Correct = correct;
+  speak('延迟回忆完成，正确' + correct + '个，共' + selectedDifficulty + '个');
+  showResults();
+}
 
-  const correctCount = results.filter(r => r).length;
-  const fb = document.getElementById('recall2-feedback');
-  fb.classList.remove('hidden');
-  if (correctCount === 3) {
-    fb.textContent = '✅ 全部正确！您记住了所有 3 个物品！';
-    fb.className = 'feedback-text correct';
-  } else if (correctCount >= 1) {
-    fb.textContent = `👍 您正确回忆了 ${correctCount}/3 个物品`;
-    fb.className = 'feedback-text correct';
+// ===================================================================
+// SHARE
+// ===================================================================
+function shareResult() {
+  const r1 = state.recall1Correct || 0;
+  const r2 = state.recall2Correct || 0;
+  const total = selectedDifficulty;
+  const objectsNamed = currentObjects.map(o => o.emoji).join('');
+
+  // Calculate score
+  const recallScore = ((r1 + r2) / (total * 2)) * 60;
+  const questionScore = state.totalQuestions > 0 ? (state.correctAnswers / state.totalQuestions) * 40 : 0;
+  const totalScore = Math.round(recallScore + questionScore);
+
+  let badge = '';
+  if (totalScore >= 85) badge = '优秀';
+  else if (totalScore >= 65) badge = '良好';
+  else if (totalScore >= 50) badge = '一般';
+  else badge = '建议关注';
+
+  const shareText = '🧠 短期记忆自测结果\n'
+    + '得分：' + totalScore + '分（' + badge + '）\n'
+    + '即时回忆：' + r1 + '/' + total + ' 正确\n'
+    + '延迟回忆：' + r2 + '/' + total + ' 正确\n'
+    + '答题正确率：' + state.correctAnswers + '/' + state.totalQuestions + '\n\n'
+    + '关注脑健康，定期自测。';
+
+  if (navigator.share && /mobile|android|iphone|ipad/i.test(navigator.userAgent)) {
+    navigator.share({ text: shareText }).catch(function() {});
   } else {
-    fb.textContent = `😅 没能正确回忆物品。正确答案是: ${currentObjects.map(o => o.name).join('、')}`;
-    fb.className = 'feedback-text wrong';
+    // Fallback: copy to clipboard
+    navigator.clipboard.writeText(shareText).then(function() {
+      const btn = document.querySelector('.share-btn');
+      btn.textContent = '✅ 已复制';
+      setTimeout(function() { btn.textContent = '📤 分享结果'; }, 2000);
+    }).catch(function() {
+      prompt('复制以下内容分享：', shareText);
+    });
   }
-
-  setTimeout(() => showResults(), 2000);
 }
 
 // ===================================================================
 // RESULTS
 // ===================================================================
 function showResults() {
-  state.phase = 'results';
-  showScreen('screen-results');
-  showProgress('result');
+  if (state.questionTimerInterval) { clearInterval(state.questionTimerInterval); state.questionTimerInterval = null; }
+  if (state.objectsTimerInterval) { clearInterval(state.objectsTimerInterval); state.objectsTimerInterval = null; }
+  state.phase = 'result';
   clearBackup();
+  showScreen('screen-result');
+  showProgress('结果');
+  document.getElementById('btn-large5').classList.toggle('active', prefs.largeText);
+  document.getElementById('btn-contrast5').classList.toggle('active', prefs.highContrast);
+  document.getElementById('btn-tts5').classList.toggle('active', prefs.ttsEnabled);
+  updateTTSIndicator();
 
-  const r1 = state.recall1Results.filter(r => r).length;
-  const r2 = state.recall2Results.filter(r => r).length;
+  const r1 = state.recall1Correct || 0;
+  const r2 = state.recall2Correct || 0;
+  const total = selectedDifficulty;
+  const objectsNamed = currentObjects.map(o => o.emoji + o.name).join('、');
+  const totalPossibleRecall = total * 2;
 
-  let cb = 0;
-  if (r1 === 3 && r2 === 3) cb = 1;
-  else if (r1 >= 2 && r2 >= 2) cb = 0.5;
-  const totalScore = Math.round((r1 + r2 + cb) * 10) / 10;
-  const pct = Math.round((totalScore / 7) * 100);
-  const rate = state.questionsAsked > 0 ? state.correctAnswers / state.questionsAsked : 0;
+  // Scoring: recall accounts for 60%, questions for 40%
+  const recallScore = (r1 + r2) / totalPossibleRecall * 60;
+  const questionScore = state.totalQuestions > 0 ? (state.correctAnswers / state.totalQuestions) * 40 : 0;
+  const totalScore = Math.round(recallScore + questionScore);
 
+  const badgeEl = document.getElementById('result-badge');
   const scoreEl = document.getElementById('result-score');
   const summaryEl = document.getElementById('result-summary');
-  const badgeEl = document.getElementById('result-badge');
-  const suggestEl = document.getElementById('suggestion-box');
+  const suggestEl = document.getElementById('result-suggestion');
   const suggestText = document.getElementById('suggestion-text');
-  const objectsNamed = currentObjects.map(o => o.name).join('、');
 
-  scoreEl.textContent = `${totalScore} / 7`;
-  // Animated score bars
-  document.getElementById('score-breakdown').classList.remove('hidden');
-  setTimeout(() => {
-    document.getElementById('bar-r1').style.width = (r1 / 3 * 100) + '%';
-    document.getElementById('label-r1').textContent = r1 + '/3';
-    document.getElementById('bar-r2').style.width = (r2 / 3 * 100) + '%';
-    document.getElementById('label-r2').textContent = r2 + '/3';
-    document.getElementById('bar-qa').style.width = Math.round(rate * 100) + '%';
-    document.getElementById('label-qa').textContent = Math.round(rate * 100) + '%';
-  }, 100);
-  const objList = currentObjects.map((o, i) => `物品${i+1}: ${o.emoji} ${o.name}`).join('\n');
+  scoreEl.textContent = totalScore;
 
-  if (pct >= 80) {
+  if (totalScore >= 85) {
+    scoreEl.className = 'result-score success';
+    badgeEl.textContent = '🌟 优秀';
+    summaryEl.innerHTML = '短期记忆功能良好。<br>'
+      + '即时回忆: ' + r1 + '/' + total + ' 正确 | 延迟回忆: ' + r2 + '/' + total + ' 正确<br>'
+      + '答题正确率: ' + state.correctAnswers + '/' + state.totalQuestions
+      + '<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ' + objectsNamed + '</span>';
+    suggestEl.classList.add('hidden');
+  } else if (totalScore >= 65) {
     scoreEl.className = 'result-score pass';
-    badgeEl.textContent = '🌟 表现优秀';
-    // Check for full score
-    const isFullScore = (r1 === 3 && r2 === 3 && state.correctAnswers === state.questionsAsked);
-    if (isFullScore) {
-      summaryEl.innerHTML = `🎉 太棒了！亲爱的朋友，您全部答对了！<br>30秒回忆: ${r1}/3 正确 | 3:30回忆: ${r2}/3 正确<br>答题正确率: ${state.correctAnswers}/${state.questionsAsked}<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ${objectsNamed}</span>`;
-      launchConfetti();
-      playFullScoreSound();
-      setTimeout(launchConfetti, 800);
-      launchConfetti();
-      setTimeout(launchConfetti, 1500);
-      speak('太棒了！您全部答对了！您的记忆力非常出色！建议您过一段时间再来挑战，看看能否继续保持好成绩！');
-    } else {
-      summaryEl.innerHTML = `🌟 太棒了！<br>30秒回忆: ${r1}/3 正确 | 3:30回忆: ${r2}/3 正确<br>答题正确率: ${state.correctAnswers}/${state.questionsAsked}<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ${objectsNamed}</span>`;
-      launchConfetti();
-      playCelebrationSound();
-      setTimeout(launchConfetti, 800);
-    }
+    badgeEl.textContent = '🌱 良好';
+    summaryEl.innerHTML = '短期记忆基本正常。<br>'
+      + '即时回忆: ' + r1 + '/' + total + ' 正确 | 延迟回忆: ' + r2 + '/' + total + ' 正确<br>'
+      + '答题正确率: ' + state.correctAnswers + '/' + state.totalQuestions
+      + '<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ' + objectsNamed + '</span>';
     suggestEl.classList.remove('hidden');
-    suggestText.textContent = '亲爱的朋友，您的表现非常棒！记忆力状态良好。建议您可以过一段时间再来测试，持续关注自己的认知健康哦！';
-  } else if (pct >= 50) {
+    suggestText.textContent = '保持健康生活方式，多进行脑力锻炼，如阅读、数独、学习新技能。';
+  } else if (totalScore >= 50) {
     scoreEl.className = 'result-score pass';
-    badgeEl.textContent = '💪 继续加油';
-    summaryEl.innerHTML = `亲爱的朋友，继续加油哦！<br>30秒回忆: ${r1}/3 正确 | 3:30回忆: ${r2}/3 正确<br>答题正确率: ${state.correctAnswers}/${state.questionsAsked}<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ${objectsNamed}</span>`;
+    badgeEl.textContent = '🌱 一般';
+    summaryEl.innerHTML = '短期记忆有部分减损迹象。<br>'
+      + '即时回忆: ' + r1 + '/' + total + ' 正确 | 延迟回忆: ' + r2 + '/' + total + ' 正确<br>'
+      + '答题正确率: ' + state.correctAnswers + '/' + state.totalQuestions
+      + '<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ' + objectsNamed + '</span>';
     suggestEl.classList.remove('hidden');
-    suggestText.textContent = '亲爱的朋友，您的短期记忆有一些减损的迹象。建议您多做几次测试，观察变化趋势。平时可以多进行脑力锻炼，如阅读、数独、学习新技能等。如果记忆下降持续存在，建议在方便的时候咨询医生做进一步评估。早期阿兹海默症已经有了有效的治疗方案，早发现、早干预非常重要！';
+    suggestText.textContent = '建议多进行脑力锻炼，如阅读、数独、学习新技能。如有持续记忆下降，建议咨询医生做进一步评估。';
   } else {
     scoreEl.className = 'result-score fail';
-    badgeEl.textContent = '🧐 关注健康';
-    summaryEl.innerHTML = `亲爱的朋友，让我们一起关注健康。<br>30秒回忆: ${r1}/3 正确 | 3:30回忆: ${r2}/3 正确<br>答题正确率: ${state.correctAnswers}/${state.questionsAsked}<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ${objectsNamed}</span>`;
+    badgeEl.textContent = '🍂 建议关注';
+    summaryEl.innerHTML = '短期记忆有明显减损迹象。<br>'
+      + '即时回忆: ' + r1 + '/' + total + ' 正确 | 延迟回忆: ' + r2 + '/' + total + ' 正确<br>'
+      + '答题正确率: ' + state.correctAnswers + '/' + state.totalQuestions
+      + '<br><span style="font-size:0.85rem;color:var(--muted)">本次物品: ' + objectsNamed + '</span>';
     suggestEl.classList.remove('hidden');
-    suggestText.textContent = '亲爱的朋友，本次测试显示您的短期记忆有一些明显的减损迹象。本测试仅为初步筛查，不能代替专业诊断。\n\n医学上对于早期阿兹海默症已经有了有效的治疗方案，早期发现、早期干预非常重要。强烈建议您在方便的时候咨询神经内科或老年科医生，做一个全面的评估。同时建议多做几次测试，观察变化趋势。';
+    suggestText.textContent = '本测试仅为初步筛查，不能代替专业诊断。强烈建议您咨询神经内科或老年科医生。早期发现、早期干预非常重要。';
   }
 
-  // Save history
   saveToHistory({
     date: new Date().toISOString(),
     score: totalScore,
     recall1: r1,
     recall2: r2,
     correctRate: state.correctAnswers,
-    totalQ: state.questionsAsked,
+    totalQ: state.totalQuestions,
     objects: objectsNamed,
   });
   renderHistory();
@@ -1287,12 +1286,12 @@ function checkResume() {
     const data = JSON.parse(sessionStorage.getItem('ad_backup'));
     if (!data || !data.studyStartTime) return;
     const elapsed = Date.now() - data.studyStartTime;
-    if (elapsed > 240000) { clearBackup(); return; } // > 6min, expired
+    if (elapsed > 300000) { clearBackup(); return; }
     const banner = document.getElementById('resume-banner');
     banner.classList.remove('hidden');
-    banner.innerHTML = `⏸ 检测到未完成的测试，是否继续？<br>
-      <button class="btn btn-sm" onclick="resumeTest()">继续测试</button>
-      <button class="btn btn-sm" style="background:#6b7280;" onclick="clearBackup();banner.classList.add('hidden')">放弃</button>`;
+    banner.innerHTML = '⏸ 检测到未完成的测试，是否继续？<br>'
+      + '<button class="btn btn-sm" onclick="resumeTest()">继续测试</button> '
+      + '<button class="btn btn-sm" style="background:#6b7280" onclick="clearBackup();banner.classList.add(\'hidden\')">放弃</button>';
   } catch(e) {}
 }
 
@@ -1317,7 +1316,6 @@ function resumeTest() {
       return;
     }
 
-    // Determine phase
     const elapsed = Date.now() - state.studyStartTime;
     if (!state.recall1Done && elapsed >= 30000) {
       goToRecall1();
@@ -1327,134 +1325,8 @@ function resumeTest() {
       goToRecall2();
       return;
     }
-
-    // Back to distraction
     startDistractionPhase(true);
   } catch(e) { clearBackup(); }
-}
-
-// ===================================================================
-// RECALL KEYBOARD HANDLER (Enter to move to next field or submit)
-// ===================================================================
-function handleRecallKey(event, phase) {
-  if (event.key === 'Enter') {
-    event.preventDefault();
-    const inputs = phase === 'recall1'
-      ? ['recall1-1', 'recall1-2', 'recall1-3']
-      : ['recall2-1', 'recall2-2', 'recall2-3'];
-    const currentIdx = inputs.indexOf(event.target.id);
-    if (currentIdx >= 0 && currentIdx < inputs.length - 1) {
-      document.getElementById(inputs[currentIdx + 1]).focus();
-    } else {
-      if (phase === 'recall1') submitRecall1();
-      else submitRecall2();
-    }
-  }
-}
-
-// ===================================================================
-// CONFETTI CELEBRATION
-// ===================================================================
-function launchConfetti() {
-  const container = document.getElementById('confetti-container');
-  const colors = ['#d97706', '#f59e0b', '#fbbf24', '#ef4444', '#ec4899', '#8b5cf6', '#06b6d4', '#22c55e'];
-  const shapes = ['circle', 'square'];
-  for (let i = 0; i < 60; i++) {
-    const piece = document.createElement('div');
-    piece.className = 'confetti-piece';
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    const size = 6 + Math.random() * 8;
-    const left = Math.random() * 100;
-    const delay = Math.random() * 1.5;
-    const duration = 2 + Math.random() * 2;
-    const shape = shapes[Math.floor(Math.random() * shapes.length)];
-    piece.style.cssText = `left:${left}%;width:${size}px;height:${size}px;background:${color};border-radius:${shape === 'circle' ? '50%' : '2px'};animation-delay:${delay}s;animation-duration:${duration}s;`;
-    container.appendChild(piece);
-    setTimeout(() => piece.remove(), (delay + duration) * 1000 + 100);
-  }
-}
-
-// ===================================================================
-// INPUT FILLED INDICATOR
-// ===================================================================
-function toggleFilled(input) {
-  if (input.value.trim()) {
-    input.classList.add('filled');
-  } else {
-    input.classList.remove('filled');
-  }
-}
-
-// ===================================================================
-// BACKGROUND MUSIC (Web Audio API – relaxing ambient)
-// ===================================================================
-let bgMusicCtx = null;
-let bgMusicGain = null;
-let bgMusicOscillators = [];
-let bgMusicPlaying = false;
-
-function toggleMusic() {
-  prefs.musicEnabled = !prefs.musicEnabled;
-  document.getElementById('btn-music').classList.toggle('active', prefs.musicEnabled);
-  document.getElementById('btn-music').textContent = prefs.musicEnabled ? '🎵 音乐' : '🎵 静音';
-  savePrefs();
-  if (prefs.musicEnabled) {
-    startBgMusic();
-  } else {
-    stopBgMusic();
-  }
-}
-
-function startBgMusic() {
-  if (bgMusicPlaying) return;
-  try {
-    bgMusicCtx = new (window.AudioContext || window.webkitAudioContext)();
-    bgMusicGain = bgMusicCtx.createGain();
-    bgMusicGain.gain.value = 0.06;
-    bgMusicGain.connect(bgMusicCtx.destination);
-
-    // Pleasant chord: C major (C4, E4, G4) + soft A4
-    const chord = [261.63, 329.63, 392.00, 440.00];
-    bgMusicOscillators = chord.map(freq => {
-      const osc = bgMusicCtx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      // Slight detune for warmth
-      osc.detune.value = (Math.random() - 0.5) * 3;
-      const oscGain = bgMusicCtx.createGain();
-      oscGain.gain.value = 0.5 + Math.random() * 0.3;
-      osc.connect(oscGain);
-      oscGain.connect(bgMusicGain);
-      osc.start();
-      return osc;
-    });
-
-    // Slow LFO for gentle volume pulse
-    const lfo = bgMusicCtx.createOscillator();
-    const lfoGain = bgMusicCtx.createGain();
-    lfo.frequency.value = 0.15;
-    lfoGain.gain.value = 0.3;
-    lfo.connect(lfoGain);
-    lfoGain.connect(bgMusicGain.gain);
-    lfo.start();
-    bgMusicOscillators.push(lfo);
-
-    bgMusicPlaying = true;
-  } catch(e) {
-    bgMusicPlaying = false;
-  }
-}
-
-function stopBgMusic() {
-  if (!bgMusicPlaying) return;
-  try {
-    bgMusicOscillators.forEach(osc => {
-      try { osc.stop(); } catch(e) {}
-    });
-    bgMusicOscillators = [];
-    if (bgMusicCtx) { bgMusicCtx.close(); bgMusicCtx = null; }
-  } catch(e) {}
-  bgMusicPlaying = false;
 }
 
 // ===================================================================
@@ -1464,11 +1336,11 @@ function resetTest() {
   if (state.objectsTimerInterval) { clearInterval(state.objectsTimerInterval); state.objectsTimerInterval = null; }
   if (state.questionTimerInterval) { clearInterval(state.questionTimerInterval); state.questionTimerInterval = null; }
   clearBackup();
-  lastAnswerIdx = -1;
   state = { phase:'welcome', recall1Results:[], recall2Results:[], recall1Done:false, recall2Done:false,
-    questionsAsked:0, totalQuestions:0, correctAnswers:0, questionTimerInterval:null, objectsTimerInterval:null, studyStartTime:null };
+    questionsAsked:0, totalQuestions:0, correctAnswers:0, questionTimerInterval:null, objectsTimerInterval:null,
+    studyStartTime:null, distractStartTime:null, currentDistractIndex:0, distractQuestions:[] };
   showScreen('screen-welcome');
-  document.getElementById('progress-bar-wrap').classList.add('hidden');
+  document.querySelectorAll('#progress-bar-wrap, #progress-bar-wrap2, #progress-bar-wrap3, #progress-bar-wrap4, #progress-bar-wrap5').forEach(el => el.classList.add('hidden'));
 }
 
 // ===================================================================
@@ -1480,49 +1352,10 @@ document.getElementById('btn-large').classList.toggle('active', prefs.largeText)
 document.body.classList.toggle('high-contrast', prefs.highContrast);
 document.getElementById('btn-contrast').classList.toggle('active', prefs.highContrast);
 document.getElementById('btn-tts').classList.toggle('active', prefs.ttsEnabled);
-  document.getElementById('btn-tts').textContent = prefs.ttsEnabled ? '🔊 有声' : '🔇 静音';
-  document.getElementById('btn-music').textContent = prefs.musicEnabled ? '🎵 音乐' : '🎵 静音';
+updateTTSIndicator();
 renderHistory();
 checkResume();
+
 </script>
-
-    <!-- ====== SPONSOR: 国内扫码支付 ====== -->
-    <div id="sponsor-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:999999;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);">
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:16px;padding:24px;text-align:center;max-width:320px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
-        <img id="sponsor-qr" src="" style="width:220px;height:220px;object-fit:contain;border-radius:8px;">
-        <p id="sponsor-hint" style="margin-top:12px;font-size:0.9rem;color:#4b5563;font-weight:500;"></p>
-        <button onclick="closeSponsor()" style="margin-top:16px;padding:6px 24px;border-radius:8px;border:1px solid #d1d5db;background:#fff;color:#6b7280;cursor:pointer;font-size:0.85rem;">关闭</button>
-      </div>
-    </div>
-    <div class="sponsor-bar">
-      <div class="sponsor-bar-inner">
-        <span style="font-size:0.8rem;color:#94a3b8;">💝 赞助</span>
-        <a href="javascript:void(0)" onclick="showQR('alipay')" style="display:inline-block;padding:6px 16px;border-radius:6px;text-decoration:none;font-size:0.85rem;font-weight:500;background:#1677ff;color:#fff;">💙 支付宝</a>
-        <a href="javascript:void(0)" onclick="showQR('wechat')" style="display:inline-block;padding:6px 16px;border-radius:6px;text-decoration:none;font-size:0.85rem;font-weight:500;background:#07c160;color:#fff;">💚 微信</a>
-      </div>
-    </div>
-    <div class="sponsor-gap"></div>
-    <script>
-    function showQR(type) {
-      var modal = document.getElementById('sponsor-modal');
-      var img = document.getElementById('sponsor-qr');
-      var hint = document.getElementById('sponsor-hint');
-      if (type === 'alipay') {
-        img.src = 'https://raw.githubusercontent.com/historyreview-code/naoliceshi/main/qr-alipay.png';
-        hint.textContent = '打开支付宝扫码赞助';
-      } else {
-        img.src = 'https://raw.githubusercontent.com/historyreview-code/naoliceshi/main/qr-wechat.jpg';
-        hint.textContent = '打开微信扫码赞助';
-      }
-      modal.style.display = 'block';
-    }
-    function closeSponsor() {
-      document.getElementById('sponsor-modal').style.display = 'none';
-    }
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') closeSponsor();
-    });
-    </script>
-
 </body>
 </html>
