@@ -1163,83 +1163,160 @@ function doSubmitRecall2() {
 // SHARE
 // ===================================================================
 function shareResult() {
-  const btn = document.querySelector('.share-btn');
+  var btn = document.querySelector('.share-btn');
   btn.disabled = true;
-  btn.textContent = '获取中...';
+  btn.textContent = '生成海报中...';
 
-  // Capture result card as screenshot
-  const captureEl = document.getElementById('screen-result');
-  
-  // Temporarily hide toolbar and share button for cleaner capture
-  const toolbar = captureEl.querySelector('.toolbar');
-  const shareRow = captureEl.querySelector('.share-result');
-  const resetBtn = captureEl.querySelector('.btn');
-  if (toolbar) toolbar.style.opacity = '0';
-  if (shareRow) shareRow.style.display = 'none';
-  if (resetBtn) resetBtn.style.opacity = '0';
-  
-  // Load html2canvas from CDN
-  const script = document.createElement('script');
-  script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-  script.onload = function() {
-    html2canvas(captureEl, {
-      scale: 2,
-      backgroundColor: getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#f5f3ef',
-      useCORS: true,
-      logging: false,
-      width: captureEl.scrollWidth,
-      height: captureEl.scrollHeight,
-    }).then(function(canvas) {
-      // Restore UI
-      if (toolbar) toolbar.style.opacity = '1';
-      if (shareRow) shareRow.style.display = '';
-      if (resetBtn) resetBtn.style.opacity = '1';
-      btn.disabled = false;
-      
-      // Convert to blob
-      canvas.toBlob(function(blob) {
-        if (!blob) {
-          btn.textContent = '截图失败';
-          setTimeout(function() { btn.textContent = '📤 分享结果'; }, 2000);
-          return;
-        }
-        
-        // Try Web Share API first (works on some Android browsers with file sharing)
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], 'memory-test-result.png', { type: 'image/png' })] })) {
-          navigator.share({
-            title: '短期记忆自测结果',
-            files: [new File([blob], 'memory-test-result.png', { type: 'image/png' })]
-          }).then(function() {
-            btn.textContent = '分享成功';
-            setTimeout(function() { btn.textContent = '📤 分享结果'; }, 2000);
-          }).catch(function() {
-            // Fallback to download
-            downloadCanvas(canvas, btn);
-          });
-        } else {
-          // Download image for WeChat & other browsers
-          downloadCanvas(canvas, btn);
-        }
-      }, 'image/png');
-    }).catch(function(err) {
-      if (toolbar) toolbar.style.opacity = '1';
-      if (shareRow) shareRow.style.display = '';
-      if (resetBtn) resetBtn.style.opacity = '1';
-      btn.disabled = false;
-      btn.textContent = '截图失败';
-      setTimeout(function() { btn.textContent = '📤 分享结果'; }, 2000);
-    });
-  };
-  script.onerror = function() {
-    if (toolbar) toolbar.style.opacity = '1';
-    if (shareRow) shareRow.style.display = '';
-    if (resetBtn) resetBtn.style.opacity = '1';
+  var r1 = state.recall1Correct || 0;
+  var r2 = state.recall2Correct || 0;
+  var total = selectedDifficulty;
+  var totalPossibleRecall = total * 2;
+  var recallScore = (r1 + r2) / totalPossibleRecall * 60;
+  var questionScore = state.totalQuestions > 0 ? (state.correctAnswers / state.totalQuestions) * 40 : 0;
+  var totalScore = Math.round(recallScore + questionScore);
+
+  var badge, encourage, badgeIcon;
+  if (totalScore >= 85) {
+    badge = '优秀'; badgeIcon = '⭐';
+    encourage = '记忆力非常棒！继续保持健康的生活方式，\n多阅读、多动脑，大脑会越来越灵活！';
+  } else if (totalScore >= 65) {
+    badge = '良好'; badgeIcon = '🌱';
+    encourage = '记忆力状态不错！坚持脑力锻炼，\n如数独、阅读、学习新技能，会越来越好！';
+  } else if (totalScore >= 50) {
+    badge = '一般'; badgeIcon = '🌿';
+    encourage = '记忆有些减退迹象，建议增加脑力锻炼。\n每天做些简单的计算或记忆练习会有帮助。';
+  } else {
+    badge = '建议关注'; badgeIcon = '🍂';
+    encourage = '建议关注自己的记忆变化，\n如有持续下降趋势可咨询医生做进一步评估。';
+  }
+
+  var W = 600, H = 850;
+  var canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  var ctx = canvas.getContext('2d');
+
+  // Background gradient
+  var grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#f0fdf4'); grad.addColorStop(0.5, '#f5f3ef'); grad.addColorStop(1, '#ecfdf5');
+  ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+
+  // Decorative circles
+  ctx.globalAlpha = 0.08; ctx.fillStyle = '#16a34a';
+  ctx.beginPath(); ctx.arc(80, 80, 120, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(W-60, 200, 90, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(W/2, H-60, 150, 0, Math.PI*2); ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // Icon & Title
+  ctx.font = '48px serif'; ctx.textAlign = 'center';
+  ctx.fillText('\uD83E\uDDE0', W/2, 70);
+  ctx.font = 'bold 28px -apple-system, "PingFang SC", "Noto Sans SC", sans-serif';
+  ctx.fillStyle = '#1a1a1a';
+  ctx.fillText('短期记忆自测结果', W/2, 120);
+
+  // Date
+  var now = new Date();
+  var dateStr = now.getFullYear() + '年' + (now.getMonth()+1) + '月' + now.getDate() + '日 ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  ctx.font = '14px -apple-system, "PingFang SC", "Noto Sans SC", sans-serif';
+  ctx.fillStyle = '#9ca3af'; ctx.fillText(dateStr, W/2, 150);
+
+  // Line
+  ctx.strokeStyle = '#d1d5db'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(80, 170); ctx.lineTo(W-80, 170); ctx.stroke();
+
+  // Score circle
+  ctx.beginPath(); ctx.arc(W/2, 280, 70, 0, Math.PI*2);
+  ctx.fillStyle = '#ffffff'; ctx.shadowColor = 'rgba(22,163,74,0.15)'; ctx.shadowBlur = 20; ctx.fill(); ctx.shadowBlur = 0;
+  ctx.beginPath(); ctx.arc(W/2, 280, 70, 0, Math.PI*2);
+  ctx.strokeStyle = '#16a34a'; ctx.lineWidth = 4; ctx.stroke();
+
+  ctx.font = 'bold 44px -apple-system, "PingFang SC", "Noto Sans SC", sans-serif';
+  ctx.fillStyle = '#16a34a'; ctx.fillText(totalScore, W/2, 288);
+  ctx.font = '16px -apple-system, "PingFang SC", "Noto Sans SC", sans-serif';
+  ctx.fillStyle = '#6b7280'; ctx.fillText('分', W/2, 316);
+
+  // Badge
+  ctx.font = 'bold 20px -apple-system, "PingFang SC", "Noto Sans SC", sans-serif';
+  ctx.fillStyle = '#374151'; ctx.fillText(badgeIcon + ' ' + badge, W/2, 370);
+
+  // Line
+  ctx.strokeStyle = '#e5e7eb';
+  ctx.beginPath(); ctx.moveTo(80, 395); ctx.lineTo(W-80, 395); ctx.stroke();
+
+  // Detail cards
+  var details = [
+    { icon: '\uD83D\uDCDD', label: '即时回忆', val: r1 + '/' + total + ' 正确' },
+    { icon: '\u23F3', label: '延迟回忆', val: r2 + '/' + total + ' 正确' },
+    { icon: '\u2705', label: '答题正确率', val: state.correctAnswers + '/' + state.totalQuestions },
+  ];
+  var difficultyLabel = total === 2 ? '简单' : total === 3 ? '中等' : '困难';
+  details.push({ icon: '\uD83C\uDFAF', label: '难度', val: difficultyLabel });
+
+  var cardW = 240, cardH = 52, gap = 10, sx = (W - cardW) / 2;
+  details.forEach(function(item, i) {
+    var y = 430 + i * (cardH + gap);
+    ctx.fillStyle = '#ffffff'; ctx.shadowColor = 'rgba(0,0,0,0.05)'; ctx.shadowBlur = 6;
+    roundRect(ctx, sx, y, cardW, cardH, 8); ctx.fill(); ctx.shadowBlur = 0;
+    ctx.font = '20px serif'; ctx.textAlign = 'left';
+    ctx.fillText(item.icon, sx + 14, y + 32);
+    ctx.font = '13px -apple-system, "PingFang SC", "Noto Sans SC", sans-serif';
+    ctx.fillStyle = '#9ca3af'; ctx.fillText(item.label, sx + 46, y + 24);
+    ctx.font = 'bold 16px -apple-system, "PingFang SC", "Noto Sans SC", sans-serif';
+    ctx.fillStyle = '#1f2937'; ctx.fillText(item.val, sx + 46, y + 44);
+  });
+
+  // Objects
+  if (currentObjects && currentObjects.length > 0) {
+    var objStrs = []; for (var k = 0; k < currentObjects.length; k++) { objStrs.push(currentObjects[k].emoji); }
+    ctx.font = '13px -apple-system, "PingFang SC", "Noto Sans SC", sans-serif';
+    ctx.fillStyle = '#9ca3af'; ctx.textAlign = 'center';
+    ctx.fillText('本次记忆物品：' + objStrs.join(' '), W/2, 430 + 4 * (cardH + gap) + 25);
+  }
+
+  // Encouragement card
+  var ey = 430 + 4 * (cardH + gap) + 55;
+  ctx.fillStyle = '#f0fdf4'; ctx.shadowColor = 'rgba(22,163,74,0.08)'; ctx.shadowBlur = 8;
+  roundRect(ctx, 50, ey, W-100, 95, 12); ctx.fill(); ctx.shadowBlur = 0;
+  ctx.strokeStyle = '#bbf7d0'; ctx.lineWidth = 1;
+  roundRect(ctx, 50, ey, W-100, 95, 12); ctx.stroke();
+
+  ctx.font = '14px -apple-system, "PingFang SC", "Noto Sans SC", sans-serif';
+  ctx.fillStyle = '#166534'; ctx.textAlign = 'center';
+  var lines = encourage.split('\n');
+  for (var li = 0; li < lines.length; li++) { ctx.fillText(lines[li], W/2, ey + 30 + li * 28); }
+
+  // Footer
+  ctx.font = '12px -apple-system, "PingFang SC", "Noto Sans SC", sans-serif';
+  ctx.fillStyle = '#d1d5db'; ctx.textAlign = 'center';
+  ctx.fillText('本测试仅为初步筛查，不能代替专业诊断', W/2, H - 28);
+
+  // Save as download
+  canvas.toBlob(function(blob) {
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement('a');
+    link.href = url; link.download = '短期记忆自测结果.png';
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+    btn.textContent = '✅ 已保存到相册';
     btn.disabled = false;
-    btn.textContent = '网络异常，请重试';
-    setTimeout(function() { btn.textContent = '📤 分享结果'; }, 3000);
-  };
-  document.head.appendChild(script);
+    setTimeout(function() { btn.textContent = '📤 保存结果海报'; }, 3000);
+  }, 'image/png');
 }
+
+// Helper: Canvas roundRect polyfill
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
 
 function downloadCanvas(canvas, btn) {
   // Create download link
