@@ -1158,43 +1158,95 @@ function doSubmitRecall2() {
 // SHARE
 // ===================================================================
 function shareResult() {
-  const r1 = state.recall1Correct || 0;
-  const r2 = state.recall2Correct || 0;
-  const total = selectedDifficulty;
-  const objectsNamed = currentObjects.map(o => o.emoji).join('');
+  const btn = document.querySelector('.share-btn');
+  btn.disabled = true;
+  btn.textContent = '获取中...';
 
-  // Calculate score
-  const recallScore = ((r1 + r2) / (total * 2)) * 60;
-  const questionScore = state.totalQuestions > 0 ? (state.correctAnswers / state.totalQuestions) * 40 : 0;
-  const totalScore = Math.round(recallScore + questionScore);
-
-  let badge = '';
-  if (totalScore >= 85) badge = '优秀';
-  else if (totalScore >= 65) badge = '良好';
-  else if (totalScore >= 50) badge = '一般';
-  else badge = '建议关注';
-
-  const shareText = '🧠 短期记忆自测结果\n'
-    + '得分：' + totalScore + '分（' + badge + '）\n'
-    + '即时回忆：' + r1 + '/' + total + ' 正确\n'
-    + '延迟回忆：' + r2 + '/' + total + ' 正确\n'
-    + '答题正确率：' + state.correctAnswers + '/' + state.totalQuestions + '\n\n'
-    + '关注脑健康，定期自测。';
-
-  if (navigator.share && /mobile|android|iphone|ipad/i.test(navigator.userAgent)) {
-    navigator.share({ text: shareText }).catch(function() {});
-  } else {
-    // Fallback: copy to clipboard
-    navigator.clipboard.writeText(shareText).then(function() {
-      const btn = document.querySelector('.share-btn');
-      btn.textContent = '✅ 已复制';
+  // Capture result card as screenshot
+  const captureEl = document.getElementById('screen-result');
+  
+  // Temporarily hide toolbar and share button for cleaner capture
+  const toolbar = captureEl.querySelector('.toolbar');
+  const shareRow = captureEl.querySelector('.share-result');
+  const resetBtn = captureEl.querySelector('.btn');
+  if (toolbar) toolbar.style.opacity = '0';
+  if (shareRow) shareRow.style.display = 'none';
+  if (resetBtn) resetBtn.style.opacity = '0';
+  
+  // Load html2canvas from CDN
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+  script.onload = function() {
+    html2canvas(captureEl, {
+      scale: 2,
+      backgroundColor: getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#f5f3ef',
+      useCORS: true,
+      logging: false,
+      width: captureEl.scrollWidth,
+      height: captureEl.scrollHeight,
+    }).then(function(canvas) {
+      // Restore UI
+      if (toolbar) toolbar.style.opacity = '1';
+      if (shareRow) shareRow.style.display = '';
+      if (resetBtn) resetBtn.style.opacity = '1';
+      btn.disabled = false;
+      
+      // Convert to blob
+      canvas.toBlob(function(blob) {
+        if (!blob) {
+          btn.textContent = '截图失败';
+          setTimeout(function() { btn.textContent = '📤 分享结果'; }, 2000);
+          return;
+        }
+        
+        // Try Web Share API first (works on some Android browsers with file sharing)
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], 'memory-test-result.png', { type: 'image/png' })] })) {
+          navigator.share({
+            title: '短期记忆自测结果',
+            files: [new File([blob], 'memory-test-result.png', { type: 'image/png' })]
+          }).then(function() {
+            btn.textContent = '分享成功';
+            setTimeout(function() { btn.textContent = '📤 分享结果'; }, 2000);
+          }).catch(function() {
+            // Fallback to download
+            downloadCanvas(canvas, btn);
+          });
+        } else {
+          // Download image for WeChat & other browsers
+          downloadCanvas(canvas, btn);
+        }
+      }, 'image/png');
+    }).catch(function(err) {
+      if (toolbar) toolbar.style.opacity = '1';
+      if (shareRow) shareRow.style.display = '';
+      if (resetBtn) resetBtn.style.opacity = '1';
+      btn.disabled = false;
+      btn.textContent = '截图失败';
       setTimeout(function() { btn.textContent = '📤 分享结果'; }, 2000);
-    }).catch(function() {
-      prompt('复制以下内容分享：', shareText);
     });
-  }
+  };
+  script.onerror = function() {
+    if (toolbar) toolbar.style.opacity = '1';
+    if (shareRow) shareRow.style.display = '';
+    if (resetBtn) resetBtn.style.opacity = '1';
+    btn.disabled = false;
+    btn.textContent = '网络异常，请重试';
+    setTimeout(function() { btn.textContent = '📤 分享结果'; }, 3000);
+  };
+  document.head.appendChild(script);
 }
 
+function downloadCanvas(canvas, btn) {
+  // Create download link
+  const link = document.createElement('a');
+  link.download = '短期记忆自测结果.png';
+  link.href = canvas.toDataURL('image/png');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  btn.textContent = '已保存到相册';
+  setTimeout(function() { btn.textContent = '📤 分享结果'; }, 2000);
+}
 // ===================================================================
 // RESULTS
 // ===================================================================
