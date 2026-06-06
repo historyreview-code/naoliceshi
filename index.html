@@ -688,7 +688,7 @@ function renderHistory() {
 // HELPERS
 // ===================================================================
 function showScreen(id) {
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo(0, 0);
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
   const el = document.getElementById(id);
   if (el) el.classList.remove('hidden');
@@ -743,7 +743,7 @@ function startTest() {
 }
 
 function renderStudyPhase() {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo(0, 0);
   showScreen('screen-study');
   document.querySelectorAll('#progress-bar-wrap, #progress-bar-wrap2, #progress-bar-wrap3, #progress-bar-wrap4, #progress-bar-wrap5').forEach(el => el.classList.remove('hidden'));
   showProgress('学习');
