@@ -96,10 +96,10 @@
   @media (max-width: 420px) {
     body { padding: 10px; }
     .card { padding: 20px 16px; border-radius: 10px; }
-    .objects-grid { gap: 10px; }
-    .object-card { width: 100%; max-width: 160px; flex: 0 0 calc(50% - 6px); padding: 14px 10px; }
-    .object-card .emoji { font-size: 2.8rem; }
-    .object-card .label { font-size: 1rem; }
+    .objects-grid { gap: 8px; }
+    .object-card { width: 72px; max-width: 28vw; flex: 0 0 calc(50% - 6px); padding: 8px 6px; }
+    .object-card .emoji { font-size: 2rem; }
+    .object-card .label { font-size: 0.8rem; }
     .btn { padding: 14px 32px; font-size: 1.05rem; }
     .timer { font-size: 1.6rem; }
     h1 { font-size: calc(var(--fs-xl, 1.6rem) * 0.85); }
@@ -107,7 +107,9 @@
     .toggle-btn { padding: 6px 10px; font-size: 0.75rem; }
   }
   @media (max-width: 360px) {
-    .object-card { flex: 0 0 100%; max-width: 200px; }
+    .object-card { width: 65px; flex: 0 0 calc(50% - 5px); max-width: 25vw; padding: 6px 4px; }
+    .object-card .emoji { font-size: 1.6rem; }
+    .object-card .label { font-size: 0.7rem; }
     .btn { padding: 12px 24px; font-size: 1rem; }
     .option-btn { padding: 12px 16px; font-size: 0.95rem; }
   }
@@ -208,14 +210,14 @@
 
   /* Objects display */
   .objects-grid {
-    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin: 20px 0;
+    display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 12px 0;
   }
   .object-card {
-    background: #fafafa; border: 2px solid var(--border); border-radius: 12px;
-    padding: 20px 16px; width: 150px; max-width: 45vw; text-align: center; transition: transform 0.2s;
+    background: #fafafa; border: 2px solid var(--border); border-radius: 10px;
+    padding: 10px 8px; width: 80px; max-width: 30vw; text-align: center; transition: transform 0.2s;
   }
-  .object-card .emoji { font-size: 3.6rem; display: block; margin-bottom: 8px; line-height: 1.2; }
-  .object-card .label { font-size: 1.2rem; font-weight: 700; color: var(--text); }
+  .object-card .emoji { font-size: 2.4rem; display: block; margin-bottom: 4px; line-height: 1.2; }
+  .object-card .label { font-size: 0.9rem; font-weight: 700; color: var(--text); }
 
   .phase-badge {
     display: inline-block; background: #e0e7ff; color: var(--primary);
@@ -295,8 +297,8 @@
   @media (max-width: 480px) {
     body { font-size: 16px; }
     .card { padding: 24px 18px; }
-    .object-card { width: 120px; padding: 14px 10px; }
-    .object-card .emoji { font-size: 3rem; }
+    .object-card { width: 75px; padding: 8px 6px; }
+    .object-card .emoji { font-size: 2rem; }
     .recall-slot input { width: 100px; }
     body.large-text .recall-slot input { width: 130px; }
     .container { max-width: 100%; }
@@ -744,6 +746,9 @@ function startTest() {
 
 function renderStudyPhase() {
   window.scrollTo(0, 0);
+  // Hide welcome card elements to free up space
+  const welcomeEl = document.getElementById('screen-welcome');
+  if (welcomeEl) welcomeEl.style.display = 'none';
   showScreen('screen-study');
   document.querySelectorAll('#progress-bar-wrap, #progress-bar-wrap2, #progress-bar-wrap3, #progress-bar-wrap4, #progress-bar-wrap5').forEach(el => el.classList.remove('hidden'));
   showProgress('学习');
@@ -1393,6 +1398,9 @@ function resetTest() {
   state = { phase:'welcome', recall1Results:[], recall2Results:[], recall1Done:false, recall2Done:false,
     questionsAsked:0, totalQuestions:0, correctAnswers:0, questionTimerInterval:null, objectsTimerInterval:null,
     studyStartTime:null, distractStartTime:null, currentDistractIndex:0, distractQuestions:[] };
+  // Restore welcome display
+  const welcomeEl = document.getElementById('screen-welcome');
+  if (welcomeEl) welcomeEl.style.display = '';
   showScreen('screen-welcome');
   document.querySelectorAll('#progress-bar-wrap, #progress-bar-wrap2, #progress-bar-wrap3, #progress-bar-wrap4, #progress-bar-wrap5').forEach(el => el.classList.add('hidden'));
 }
